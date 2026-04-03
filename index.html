@@ -1531,9 +1531,11 @@
     const ex = exercises.find(e => e.id === id);
     if (!ex || !ex.solImg) return;
     const c = document.getElementById('solContainer-' + id);
+    // Lê o enunciado do atributo data para evitar problemas de escape
+    const desc = c.dataset.desc || ex.title || 'Resolução';
     c.innerHTML = `<div class="sol-revealed">
       <span class="sol-badge">Resolução</span>
-      <div class="ex-img-thumb" onclick="openLightbox('${ex.solImg}', ${JSON.stringify(ex.desc || ex.title || 'Resolução')})">
+      <div class="ex-img-thumb" data-src="${ex.solImg}" data-label="${desc.replace(/"/g,'&quot;')}" data-hints="[]" onclick="openLightboxFromEl(this)">
         <img src="${ex.solImg}" alt="solução" />
         <div class="zoom-overlay"><span>🔍 Ampliar</span></div>
       </div>
@@ -1602,7 +1604,7 @@
             </div>
             <div class="ex-img-block">
               <label>Solução</label>
-              <div id="solContainer-${ex.id}">
+              <div id="solContainer-${ex.id}" data-desc="${(ex.desc||ex.title||'').replace(/"/g,'&quot;')}">
                 ${ex.solImg
                   ? buildLockedHTML(ex.id)
                   : `<div class="ex-img-empty">
