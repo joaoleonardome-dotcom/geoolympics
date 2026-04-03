@@ -171,13 +171,44 @@
     .btn-ghost:hover { background: var(--input-bg); }
 
     /* ══ LIGHTBOX ══ */
-    #lightbox { position: fixed; inset: 0; background: rgba(12,10,24,0.95); display: none; align-items: center; justify-content: center; z-index: 10000; flex-direction: column; padding: 1.5rem; backdrop-filter: blur(10px); }
+    #lightbox { position: fixed; inset: 0; background: rgba(255,255,255,0.97); display: none; align-items: center; justify-content: center; z-index: 10000; padding: 1.5rem; backdrop-filter: blur(10px); gap: 1.5rem; }
     #lightbox.open { display: flex; animation: fadeIn 0.22s ease; }
-    .lb-inner { position: relative; display: flex; flex-direction: column; align-items: center; gap: 1rem; max-width: 96vw; max-height: 92vh; }
-    .lb-img { max-width: 90vw; max-height: 84vh; object-fit: contain; border-radius: 10px; box-shadow: 0 32px 90px rgba(0,0,0,0.7); display: block; }
-    .lb-close { position: absolute; top: -18px; right: -18px; width: 38px; height: 38px; border-radius: 50%; background: #fff; border: none; font-size: 1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 14px rgba(0,0,0,0.4); transition: transform 0.18s; }
+
+    /* layout lado a lado: imagem + painel de dicas */
+    .lb-layout { display: flex; align-items: flex-start; gap: 1.5rem; max-width: 98vw; max-height: 92vh; }
+    .lb-img-wrap { position: relative; flex-shrink: 0; }
+    .lb-img { max-width: 100vw; max-height: 95vh; object-fit: contain; border-radius: 10px; box-shadow: 0 8px 40px rgba(61,58,78,0.18); display: block; }
+    .lb-close { position: absolute; top: -14px; right: -14px; width: 36px; height: 36px; border-radius: 50%; background: var(--lavender-dark); color: #fff; border: none; font-size: 0.9rem; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 14px rgba(0,0,0,0.2); transition: transform 0.18s; z-index: 2; }
     .lb-close:hover { transform: scale(1.12); }
-    .lb-label { color: rgba(255,255,255,0.5); font-size: 0.75rem; letter-spacing: 1.2px; text-transform: uppercase; }
+    .lb-label { color: var(--text-muted); font-size: 0.72rem; letter-spacing: 1.2px; text-transform: uppercase; text-align: center; margin-top: 0.5rem; }
+
+    /* painel de dicas */
+    .lb-hints-panel { display: flex; flex-direction: column; gap: 0.6rem; min-width: 200px; max-width: 240px; flex-shrink: 0; }
+    .lb-hints-title { font-family: 'Playfair Display', serif; font-size: 0.85rem; font-weight: 600; color: var(--text); margin-bottom: 0.2rem; }
+    .lb-hint-btn {
+      width: 100%; text-align: left; padding: 0.6rem 1rem;
+      border-radius: 12px; border: 1.5px solid var(--border);
+      background: var(--sage-light); color: var(--sage-dark);
+      font-family: 'DM Sans', sans-serif; font-size: 0.82rem; font-weight: 500;
+      cursor: pointer; transition: all 0.2s;
+    }
+    .lb-hint-btn:hover   { background: var(--sage); color: var(--text); border-color: var(--sage-dark); }
+    .lb-hint-btn.locked  { background: var(--card-bg); color: var(--text-muted); border-color: var(--border); cursor: not-allowed; opacity: 0.5; }
+    .lb-hint-btn.revealed { background: var(--lavender-light); color: var(--lavender-dark); border-color: var(--lavender); cursor: default; }
+    .lb-hint-text {
+      padding: 0.7rem 1rem; border-radius: 12px;
+      background: var(--lavender-light); border: 1px solid var(--lavender);
+      font-size: 0.82rem; color: var(--text); line-height: 1.55;
+      animation: fadeIn 0.25s ease; display: none;
+    }
+    .lb-hint-text.visible { display: block; }
+    .lb-no-hints { font-size: 0.78rem; color: var(--text-muted); font-style: italic; }
+
+    @media (max-width: 640px) {
+      .lb-layout { flex-direction: column; align-items: center; overflow-y: auto; }
+      .lb-img { max-width: 92vw; }
+      .lb-hints-panel { min-width: unset; max-width: 92vw; width: 100%; }
+    }
 
     /* ══ TOP BAR ══ */
     .topbar { display: flex; align-items: center; justify-content: space-between; padding: 1rem 1.8rem; background: var(--card-bg); border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100; transition: background 0.3s; }
@@ -231,7 +262,7 @@
 
     .ex-row-num   { font-size: 0.75rem; color: var(--text-muted); min-width: 90px; flex-shrink: 0; font-variant-numeric: tabular-nums; }
     .ex-row-title { font-family: 'Playfair Display', serif; font-size: 1rem; font-weight: 600; color: var(--text); flex: 1; }
-    .ex-row-tags  { display: flex; gap: 0.3rem; flex-shrink: 0; flex-wrap: wrap; }
+    .ex-row-tags  { display: flex; gap: 0.3rem; flex: 1; flex-wrap: wrap; }
     .ex-row-tag   { font-size: 0.64rem; padding: 2px 8px; border-radius: 20px; background: var(--sky-light); color: var(--text-muted); border: 1px solid var(--border); }
     .ex-row-level { font-size: 0.7rem; padding: 3px 11px; border-radius: 20px; font-weight: 500; flex-shrink: 0; }
     .level-easy { background: var(--sage-light);    color: var(--sage-dark); }
@@ -343,6 +374,62 @@
     .toast { position: fixed; bottom: 1.8rem; right: 1.8rem; background: var(--sage-dark); color: #fff; padding: 0.8rem 1.4rem; border-radius: 12px; font-size: 0.85rem; font-weight: 500; z-index: 9999; box-shadow: 0 8px 24px rgba(107,158,138,0.35); display: none; animation: slideToast 0.3s ease; }
     @keyframes slideToast { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
 
+    /* ══ CONFIGURAÇÕES ══ */
+    .cfg-section-label { font-size: 0.77rem; font-weight: 500; color: var(--text-muted); letter-spacing: 0.3px; margin-bottom: 0.7rem; }
+    .cfg-color-grid { display: flex; flex-wrap: wrap; gap: 0.6rem; }
+    .cfg-color-swatch {
+      width: 36px; height: 36px; border-radius: 50%; cursor: pointer;
+      border: 3px solid transparent; transition: transform 0.15s, border-color 0.15s;
+    }
+    .cfg-color-swatch:hover { transform: scale(1.15); }
+    .cfg-color-swatch.active { border-color: var(--text); transform: scale(1.1); }
+
+    .cfg-font-row { display: flex; gap: 0.6rem; }
+    .cfg-font-btn {
+      flex: 1; padding: 0.6rem; border-radius: 10px;
+      border: 1.5px solid var(--border); background: var(--input-bg);
+      font-family: 'DM Sans', sans-serif; font-size: 1rem; color: var(--text);
+      cursor: pointer; transition: all 0.2s; display: flex; flex-direction: column; align-items: center; gap: 2px;
+    }
+    .cfg-font-btn small { font-size: 0.65rem; color: var(--text-muted); }
+    .cfg-font-btn.active { background: var(--lavender-light); border-color: var(--lavender-dark); color: var(--lavender-dark); }
+    .cfg-font-btn:hover:not(.active) { background: var(--input-bg); border-color: var(--lavender); }
+
+    .cfg-radius-row { display: flex; gap: 0.6rem; }
+    .cfg-radius-btn {
+      flex: 1; padding: 0.7rem; border-radius: 10px;
+      border: 1.5px solid var(--border); background: var(--input-bg);
+      font-size: 1.3rem; color: var(--text-muted);
+      cursor: pointer; transition: all 0.2s;
+    }
+    .cfg-radius-btn.active { background: var(--lavender-light); border-color: var(--lavender-dark); color: var(--lavender-dark); }
+    .cfg-radius-btn:hover:not(.active) { border-color: var(--lavender); }
+
+    /* ══ BOTÃO IMPRIMIR ══ */
+    .btn-icon.print:hover { background: var(--sage-light); border-color: var(--sage); }
+
+    /* ══ FOLHA DE IMPRESSÃO ══ */
+    @media print {
+      body * { visibility: hidden; }
+      #printArea, #printArea * { visibility: visible; }
+      #printArea {
+        position: fixed; inset: 0;
+        display: flex; flex-direction: column;
+        padding: 2cm 2.5cm;
+        background: #fff;
+      }
+    }
+    #printArea { display: none; }
+    .print-header { display: flex; align-items: center; justify-content: space-between; border-bottom: 2px solid #3D3A4E; padding-bottom: 0.8rem; margin-bottom: 1.5rem; }
+    .print-logo   { font-family: 'Playfair Display', serif; font-size: 1.4rem; font-weight: 700; color: #3D3A4E; }
+    .print-badge  { font-size: 0.72rem; padding: 3px 12px; border-radius: 20px; background: #E8F2EE; color: #6B9E8A; border: 1px solid #B8D4C8; }
+    .print-num    { font-size: 0.78rem; color: #7A7891; margin-bottom: 0.3rem; letter-spacing: 1px; text-transform: uppercase; }
+    .print-tags   { display: flex; gap: 0.4rem; flex-wrap: wrap; margin-bottom: 1rem; }
+    .print-tag    { font-size: 0.7rem; padding: 2px 10px; border-radius: 20px; background: #E6F2FA; color: #4A7A9A; border: 1px solid #B0CDE0; }
+    .print-desc   { font-size: 0.92rem; color: #3D3A4E; line-height: 1.7; margin-bottom: 1.2rem; }
+    .print-img    { max-width: 100%; max-height: 60vh; object-fit: contain; border-radius: 8px; border: 1px solid #e0e0e0; display: block; margin: 0 auto; }
+    .print-footer { margin-top: auto; border-top: 1px solid #e0e0e0; padding-top: 0.6rem; font-size: 0.72rem; color: #9994B0; text-align: right; }
+
     /* ══ PWA INSTALL BANNER ══ */
     #installBanner {
       display: none;
@@ -444,10 +531,18 @@
 
 <!-- ══ LIGHTBOX ══ -->
 <div id="lightbox" onclick="closeLightbox()">
-  <div class="lb-inner" onclick="event.stopPropagation()">
-    <button class="lb-close" onclick="closeLightbox()">✕</button>
-    <img class="lb-img" id="lbImg" src="" alt="" />
-    <div class="lb-label" id="lbLabel"></div>
+  <div class="lb-layout" onclick="event.stopPropagation()">
+
+    <!-- Imagem -->
+    <div class="lb-img-wrap">
+      <button class="lb-close" onclick="closeLightbox()">✕</button>
+      <img class="lb-img" id="lbImg" src="" alt="" />
+      <div class="lb-label" id="lbLabel"></div>
+    </div>
+
+    <!-- Painel de dicas -->
+    <div class="lb-hints-panel" id="lbHintsPanel"></div>
+
   </div>
 </div>
 
@@ -497,8 +592,9 @@
   <div class="admin-view">
     <div class="stat-row" id="statRow"></div>
     <div class="admin-tabs">
-      <button class="tab-btn active" id="tabAdd"  onclick="switchTab('add',  this)">+ Novo Exercício</button>
-      <button class="tab-btn"        id="tabList" onclick="switchTab('list', this)">Gerenciar Acervo</button>
+      <button class="tab-btn active" id="tabAdd"    onclick="switchTab('add',    this)">+ Novo Exercício</button>
+      <button class="tab-btn"        id="tabList"   onclick="switchTab('list',   this)">Gerenciar Acervo</button>
+      <button class="tab-btn"        id="tabConfig" onclick="switchTab('config', this)">⚙️ Configurações</button>
     </div>
 
     <!-- PAINEL CADASTRO / EDIÇÃO -->
@@ -507,11 +603,7 @@
       <div class="form-card">
         <h4 id="formTitle">Cadastrar Novo Exercício</h4>
         <div class="form-row">
-          <div class="form-group">
-            <label>Título do Exercício</label>
-            <input type="text" id="exTitle" placeholder="Ex: Triângulo Inscrito no Círculo" />
-          </div>
-          <div class="form-group">
+          <div class="form-group full">
             <label>Nível de Dificuldade</label>
             <select id="exLevel">
               <option value="Fácil">Fácil</option>
@@ -535,6 +627,18 @@
               <input type="text" id="tagInput" class="tags-input" placeholder="Digite e pressione Enter…" onkeydown="handleTagInput(event)" />
             </div>
             <span class="tags-hint">Exemplos: Triângulos, Círculos, Ângulos, Quadriláteros, Polígonos</span>
+          </div>
+        </div>
+
+        <!-- DICAS -->
+        <div class="form-row">
+          <div class="form-group full">
+            <label>Dicas (até 3) — reveladas progressivamente no lightbox</label>
+            <div style="display:flex;flex-direction:column;gap:0.5rem;">
+              <input type="text" id="hint1" placeholder="Dica 1 (obrigatória para habilitar as demais)" />
+              <input type="text" id="hint2" placeholder="Dica 2 (opcional)" />
+              <input type="text" id="hint3" placeholder="Dica 3 (opcional)" />
+            </div>
           </div>
         </div>
 
@@ -571,10 +675,87 @@
     <div id="panel-list" class="admin-panel">
       <div class="admin-list" id="adminList"></div>
     </div>
+
+    <!-- PAINEL CONFIGURAÇÕES -->
+    <div id="panel-config" class="admin-panel">
+      <div class="form-card">
+        <h4>🔐 Segurança</h4>
+        <div class="form-row">
+          <div class="form-group full">
+            <label>Senha atual</label>
+            <input type="password" id="cfgCurrentPass" placeholder="••••••••" />
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Nova senha</label>
+            <input type="password" id="cfgNewPass" placeholder="Nova senha" />
+          </div>
+          <div class="form-group">
+            <label>Confirmar nova senha</label>
+            <input type="password" id="cfgConfirmPass" placeholder="Repita a nova senha" />
+          </div>
+        </div>
+        <div class="form-actions">
+          <button class="btn-save" onclick="savePassword()">💾 Salvar senha</button>
+        </div>
+      </div>
+
+      <div class="form-card">
+        <h4>🎨 Aparência</h4>
+
+        <div class="cfg-section-label">Cor de destaque dos botões</div>
+        <div class="cfg-color-grid" id="cfgColorGrid"></div>
+
+        <div class="cfg-section-label" style="margin-top:1.4rem;">Tamanho da fonte</div>
+        <div class="cfg-font-row">
+          <button class="cfg-font-btn" onclick="setFontSize('small')">A<small>pequeno</small></button>
+          <button class="cfg-font-btn active" id="cfgFontMed" onclick="setFontSize('medium')">A<small>médio</small></button>
+          <button class="cfg-font-btn" onclick="setFontSize('large')">A<small>grande</small></button>
+        </div>
+
+        <div class="cfg-section-label" style="margin-top:1.4rem;">Borda dos cards</div>
+        <div class="cfg-radius-row">
+          <button class="cfg-radius-btn" onclick="setRadius('sharp')" title="Sem arredondamento">■</button>
+          <button class="cfg-radius-btn active" onclick="setRadius('medium')" title="Médio">▢</button>
+          <button class="cfg-radius-btn" onclick="setRadius('round')" title="Bem arredondado">◯</button>
+        </div>
+      </div>
+
+      <div class="form-card">
+        <h4>📋 Texto da tela inicial</h4>
+        <div class="form-row">
+          <div class="form-group full">
+            <label>Subtítulo exibido abaixo de "GeoOlympics"</label>
+            <input type="text" id="cfgSubtitle" placeholder="Geometria Olímpica" />
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group full">
+            <label>Descrição do card de alunos</label>
+            <input type="text" id="cfgStudentDesc" placeholder="Visualize e explore os exercícios…" />
+          </div>
+        </div>
+        <div class="form-actions">
+          <button class="btn-save" onclick="saveTexts()">💾 Salvar textos</button>
+        </div>
+      </div>
+
+      <div class="form-card">
+        <h4>🗑️ Zona de perigo</h4>
+        <p style="font-size:0.83rem;color:var(--text-muted);margin-bottom:1rem;">Ações irreversíveis — use com cuidado.</p>
+        <div class="form-actions">
+          <button class="btn-save" style="background:#C0514F;" onclick="resetAllSettings()">↺ Restaurar configurações padrão</button>
+        </div>
+      </div>
+    </div>
   </div>
 </div>
 
 <div class="toast" id="toast"></div>
+
+<!-- ══ ÁREA DE IMPRESSÃO ══ -->
+<div id="printArea"></div>
 
 <!-- ══ PWA INSTALL BANNER ══ -->
 <div id="installBanner">
@@ -592,6 +773,7 @@
 <script>
   /* ── CONFIG ── */
   const ADMIN_PASSWORD = 'geo2025'; // altere aqui para trocar a senha
+  let adminPassword = localStorage.getItem('geo_password') || ADMIN_PASSWORD;
 
   /* ── STATE ── */
   let exercises    = [];
@@ -670,7 +852,7 @@
   function closeModalOutside(e) { if (e.target.id === 'adminModal') closeAdminModal(); }
 
   function checkAdmin() {
-    if (document.getElementById('adminPass').value === ADMIN_PASSWORD) {
+    if (document.getElementById('adminPass').value === adminPassword) {
       closeAdminModal();
       renderAdmin();
       showScreen('adminView');
@@ -682,11 +864,56 @@
   }
 
   /* ── LIGHTBOX ── */
-  function openLightbox(src, label) {
+  function openLightboxFromEl(el) {
+    const src   = el.dataset.src;
+    const label = el.dataset.label;
+    let hints   = [];
+    try { hints = JSON.parse(el.dataset.hints || '[]'); } catch(e) {}
+    openLightbox(src, label, hints);
+  }
+
+  function openLightbox(src, label, hints) {
     document.getElementById('lbImg').src = src;
     document.getElementById('lbLabel').textContent = label || '';
     document.getElementById('lightbox').classList.add('open');
     document.body.style.overflow = 'hidden';
+
+    // monta painel de dicas
+    const panel = document.getElementById('lbHintsPanel');
+    hints = (hints || []).filter(Boolean);
+    if (!hints.length) {
+      panel.innerHTML = '';
+      return;
+    }
+
+    let revealed = 0; // quantas dicas já reveladas
+
+    function renderHints() {
+      panel.innerHTML = '<div class="lb-hints-title">💡 Dicas</div>';
+      hints.forEach((txt, i) => {
+        const isRevealed = i < revealed;
+        const isNext     = i === revealed;
+
+        const btn = document.createElement('button');
+        btn.className = 'lb-hint-btn' + (isRevealed ? ' revealed' : isNext ? '' : ' locked');
+        btn.textContent = isRevealed ? `✓ Dica ${i+1}` : `Dica ${i+1}`;
+        btn.disabled = !isNext && !isRevealed;
+
+        const txt_div = document.createElement('div');
+        txt_div.className = 'lb-hint-text' + (isRevealed ? ' visible' : '');
+        txt_div.textContent = txt;
+
+        if (isNext) {
+          btn.onclick = () => { revealed++; renderHints(); };
+        } else if (isRevealed) {
+          btn.onclick = () => { txt_div.classList.toggle('visible'); };
+        }
+
+        panel.appendChild(btn);
+        panel.appendChild(txt_div);
+      });
+    }
+    renderHints();
   }
   function closeLightbox() {
     document.getElementById('lightbox').classList.remove('open');
@@ -760,12 +987,11 @@
 
   /* ── SAVE / UPDATE ── */
   async function saveExercise() {
-    const title   = document.getElementById('exTitle').value.trim();
+    const title   = '';
     const level   = document.getElementById('exLevel').value;
     const desc    = document.getElementById('exDesc').value.trim();
     const exFile  = document.getElementById('exImg').files[0];
     const solFile = document.getElementById('solImg').files[0];
-    if (!title) { alert('Preencha o título do exercício.'); return; }
 
     const btn = document.getElementById('saveBtn');
     btn.disabled = true;
@@ -778,7 +1004,12 @@
       if (exFile)  exImg  = await uploadToCloudinary(exFile);
       if (solFile) solImg = await uploadToCloudinary(solFile);
 
-      const data = { title, level, desc, tags: currentTags, exImg, solImg };
+      const hints = [
+        document.getElementById('hint1').value.trim(),
+        document.getElementById('hint2').value.trim(),
+        document.getElementById('hint3').value.trim(),
+      ].filter(Boolean);
+      const data = { title, level, desc, tags: currentTags, exImg, solImg, hints };
 
       if (editingId !== null) {
         await saveToFirebase(data, editingId);
@@ -811,12 +1042,17 @@
     editingExImg  = ex.exImg  || null;
     editingSolImg = ex.solImg || null;
 
-    document.getElementById('exTitle').value = ex.title;
     document.getElementById('exLevel').value = ex.level;
     document.getElementById('exDesc').value  = ex.desc || '';
 
     currentTags = ex.tags ? [...ex.tags] : [];
     renderTagChips();
+
+    // preenche dicas
+    const hints = ex.hints || [];
+    document.getElementById('hint1').value = hints[0] || '';
+    document.getElementById('hint2').value = hints[1] || '';
+    document.getElementById('hint3').value = hints[2] || '';
 
     const setPrev = (imgId, textId, src, label) => {
       if (src) {
@@ -867,12 +1103,13 @@
   }
 
   function clearForm() {
-    ['exTitle','exDesc'].forEach(id => document.getElementById(id).value = '');
+    document.getElementById('exDesc').value = '';
     document.getElementById('exLevel').value = 'Médio';
     ['exImg','solImg'].forEach(id => document.getElementById(id).value = '');
     ['prevEx','prevSol'].forEach(id => { const img = document.getElementById(id); img.src = ''; img.style.display = 'none'; });
     document.getElementById('exImgText').innerHTML  = 'Clique para selecionar<br /><small>PNG, JPG, WEBP</small>';
     document.getElementById('solImgText').innerHTML = 'Clique para selecionar<br /><small>PNG, JPG, WEBP</small>';
+    ['hint1','hint2','hint3'].forEach(id => document.getElementById(id).value = '');
   }
 
   /* ── TOAST ── */
@@ -889,6 +1126,7 @@
     btn.classList.add('active');
     document.querySelectorAll('.admin-panel').forEach(p => p.classList.remove('active'));
     document.getElementById('panel-' + name).classList.add('active');
+    if (name === 'config') initConfig();
   }
 
   /* ── HELPERS ── */
@@ -961,7 +1199,6 @@
     if (filter && filter !== 'todos') list = list.filter(e => e.level === filter);
     if (activeTag) list = list.filter(e => (e.tags || []).includes(activeTag));
     if (search) list = list.filter(e =>
-      e.title.toLowerCase().includes(search.toLowerCase()) ||
       (e.desc || '').toLowerCase().includes(search.toLowerCase()) ||
       (e.tags || []).some(t => t.toLowerCase().includes(search.toLowerCase()))
     );
@@ -978,7 +1215,6 @@
       <div class="ex-row" id="row-${ex.id}">
         <div class="ex-row-header" onclick="toggleRow('${ex.id}')">
           <span class="ex-row-num">Exercício ${String(i + 1).padStart(2, '0')}</span>
-          <span class="ex-row-title">${ex.title}</span>
           <span class="ex-row-tags">${(ex.tags || []).map(t => `<span class="ex-row-tag">${t}</span>`).join('')}</span>
           <span class="ex-row-level ${levelClass(ex.level)}">${ex.level}</span>
           <span class="ex-row-chevron">▶</span>
@@ -989,7 +1225,7 @@
             <div class="ex-img-block">
               <label>Exercício</label>
               ${ex.exImg
-                ? `<div class="ex-img-thumb" onclick="openLightbox('${ex.exImg}', 'Exercício — ${ex.title.replace(/'/g,"\\'")}')">
+                ? `<div class="ex-img-thumb" data-src="${ex.exImg}" data-label="Exercício"\\'")}" data-hints='${JSON.stringify(ex.hints||[]).replace(/'/g,"&apos;")}' onclick="openLightboxFromEl(this)">
                     <img src="${ex.exImg}" alt="exercício" />
                     <div class="zoom-overlay"><span>🔍 Ampliar</span></div>
                   </div>`
@@ -1045,25 +1281,178 @@
       list.innerHTML = `<div class="empty-state"><div class="empty-geo">△</div><p>Nenhum exercício cadastrado ainda.<br>Use a aba "Novo Exercício" para começar.</p></div>`;
       return;
     }
-    list.innerHTML = exercises.map(ex => `
+    list.innerHTML = exercises.map((ex, i) => `
       <div class="admin-item">
         <div class="admin-item-thumb">
           ${ex.exImg ? `<img src="${ex.exImg}" alt="" />` : '📐'}
         </div>
         <div class="admin-item-info">
-          <strong>${ex.title}</strong>
+          <strong>Exercício ${String(i + 1).padStart(2, '0')}</strong>
           <span>${ex.level}${ex.tags && ex.tags.length ? ' · ' + ex.tags.join(', ') : ''}${ex.solImg ? ' · com solução' : ' · sem solução'}</span>
         </div>
         <div class="admin-item-actions">
-          <button class="btn-icon edit"   onclick="editExercise('${ex.id}')"   title="Editar">✏️</button>
-          <button class="btn-icon danger" onclick="deleteExercise('${ex.id}')" title="Excluir">🗑</button>
+          <button class="btn-icon print"  onclick="printExercise('${ex.id}', ${i + 1})" title="Imprimir">🖨️</button>
+          <button class="btn-icon edit"   onclick="editExercise('${ex.id}')"             title="Editar">✏️</button>
+          <button class="btn-icon danger" onclick="deleteExercise('${ex.id}')"           title="Excluir">🗑</button>
         </div>
       </div>
     `).join('');
   }
 
+
+  /* ── IMPRIMIR EXERCÍCIO ── */
+  function printExercise(id, num) {
+    const ex = exercises.find(e => e.id === id);
+    if (!ex) return;
+
+    const numStr = String(num).padStart(2, '0');
+    const tags   = (ex.tags || []).map(t => `<span class="print-tag">${t}</span>`).join('');
+    const desc   = ex.desc ? `<div class="print-desc">${ex.desc}</div>` : '';
+    const img    = ex.exImg ? `<img class="print-img" src="${ex.exImg}" alt="exercício" />` : '';
+    const today  = new Date().toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' });
+
+    document.getElementById('printArea').innerHTML = `
+      <div class="print-header">
+        <span class="print-logo">GeoOlympics</span>
+        <span class="print-badge">${ex.level}</span>
+      </div>
+      <div class="print-num">Exercício ${numStr}</div>
+      ${tags ? `<div class="print-tags">${tags}</div>` : ''}
+      ${desc}
+      ${img}
+      <div class="print-footer">GeoOlympics — Geometria Olímpica · ${today}</div>
+    `;
+
+    document.getElementById('printArea').style.display = 'flex';
+    document.getElementById('printArea').style.flexDirection = 'column';
+
+    setTimeout(() => {
+      window.print();
+      document.getElementById('printArea').style.display = 'none';
+    }, 300);
+  }
+
   /* ── INIT ── */
+  applyStoredConfig();
   renderExercises();
+
+
+  /* ══ CONFIGURAÇÕES ══ */
+
+  // Paleta de cores disponíveis (var CSS customizável)
+  const CFG_COLORS = [
+    { name: 'Lavanda',   value: '#7B74B8' },
+    { name: 'Sage',      value: '#6B9E8A' },
+    { name: 'Pêssego',   value: '#C4855A' },
+    { name: 'Azul',      value: '#4A90C4' },
+    { name: 'Rosa',      value: '#C47A9A' },
+    { name: 'Cinza',     value: '#5A5A72' },
+    { name: 'Âmbar',     value: '#B8860B' },
+    { name: 'Verde',     value: '#4A8C5C' },
+  ];
+
+
+
+  function initConfig() {
+    // Cores
+    const grid = document.getElementById('cfgColorGrid');
+    if (!grid) return;
+    const saved = localStorage.getItem('geo_accent') || '#7B74B8';
+    grid.innerHTML = '';
+    CFG_COLORS.forEach(c => {
+      const sw = document.createElement('div');
+      sw.className = 'cfg-color-swatch' + (c.value === saved ? ' active' : '');
+      sw.style.background = c.value;
+      sw.title = c.name;
+      sw.onclick = () => { applyAccent(c.value); grid.querySelectorAll('.cfg-color-swatch').forEach(s => s.classList.remove('active')); sw.classList.add('active'); };
+      grid.appendChild(sw);
+    });
+
+    // Fonte
+    const fs = localStorage.getItem('geo_fontsize') || 'medium';
+    document.querySelectorAll('.cfg-font-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.cfg-font-btn').forEach(b => { if (b.onclick.toString().includes(fs)) b.classList.add('active'); });
+
+    // Radius
+    const rd = localStorage.getItem('geo_radius') || 'medium';
+    document.querySelectorAll('.cfg-radius-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.cfg-radius-btn').forEach(b => { if (b.onclick.toString().includes(rd)) b.classList.add('active'); });
+
+    // Textos
+    document.getElementById('cfgSubtitle').value    = localStorage.getItem('geo_subtitle')     || 'Geometria Olímpica';
+    document.getElementById('cfgStudentDesc').value = localStorage.getItem('geo_studentdesc')  || 'Visualize e explore os exercícios e soluções das aulas de geometria olímpica';
+  }
+
+  function applyAccent(color) {
+    document.documentElement.style.setProperty('--lavender-dark', color);
+    // Gera versão clara da cor (mix com branco)
+    localStorage.setItem('geo_accent', color);
+  }
+
+  function setFontSize(size) {
+    const map = { small: '14px', medium: '16px', large: '18px' };
+    document.documentElement.style.fontSize = map[size];
+    localStorage.setItem('geo_fontsize', size);
+    document.querySelectorAll('.cfg-font-btn').forEach(b => b.classList.remove('active'));
+    event.currentTarget.classList.add('active');
+  }
+
+  function setRadius(mode) {
+    const map = { sharp: '4px', medium: '14px', round: '28px' };
+    document.documentElement.style.setProperty('--card-radius', map[mode]);
+    // aplica em cards
+    document.querySelectorAll('.form-card, .entry-card, .stat-card, .admin-item, .ex-row').forEach(el => {
+      el.style.borderRadius = map[mode];
+    });
+    localStorage.setItem('geo_radius', mode);
+    document.querySelectorAll('.cfg-radius-btn').forEach(b => b.classList.remove('active'));
+    event.currentTarget.classList.add('active');
+  }
+
+  function savePassword() {
+    const current = document.getElementById('cfgCurrentPass').value;
+    const novo    = document.getElementById('cfgNewPass').value;
+    const confirm = document.getElementById('cfgConfirmPass').value;
+    if (current !== adminPassword) { showToast('❌ Senha atual incorreta.'); return; }
+    if (!novo) { showToast('❌ A nova senha não pode ser vazia.'); return; }
+    if (novo !== confirm) { showToast('❌ As senhas não coincidem.'); return; }
+    adminPassword = novo;
+    localStorage.setItem('geo_password', novo);
+    document.getElementById('cfgCurrentPass').value = '';
+    document.getElementById('cfgNewPass').value = '';
+    document.getElementById('cfgConfirmPass').value = '';
+    showToast('✅ Senha alterada com sucesso!');
+  }
+
+  function saveTexts() {
+    const sub  = document.getElementById('cfgSubtitle').value.trim();
+    const desc = document.getElementById('cfgStudentDesc').value.trim();
+    if (sub)  { document.querySelector('.landing-sub').textContent = sub;  localStorage.setItem('geo_subtitle', sub); }
+    if (desc) { document.querySelector('.entry-card.student p').textContent = desc; localStorage.setItem('geo_studentdesc', desc); }
+    showToast('✅ Textos salvos!');
+  }
+
+  function resetAllSettings() {
+    if (!confirm('Restaurar todas as configurações para o padrão?')) return;
+    ['geo_accent','geo_fontsize','geo_radius','geo_subtitle','geo_studentdesc'].forEach(k => localStorage.removeItem(k));
+    document.documentElement.style.removeProperty('--lavender-dark');
+    document.documentElement.style.removeProperty('--card-radius');
+    document.documentElement.style.fontSize = '';
+    showToast('↺ Configurações restauradas.');
+    initConfig();
+  }
+
+  function applyStoredConfig() {
+    const accent = localStorage.getItem('geo_accent');
+    if (accent) document.documentElement.style.setProperty('--lavender-dark', accent);
+    const fs = localStorage.getItem('geo_fontsize');
+    if (fs) { const map = { small: '14px', medium: '16px', large: '18px' }; document.documentElement.style.fontSize = map[fs]; }
+    const sub = localStorage.getItem('geo_subtitle');
+    if (sub) { const el = document.querySelector('.landing-sub'); if (el) el.textContent = sub; }
+    const sdesc = localStorage.getItem('geo_studentdesc');
+    if (sdesc) { const el = document.querySelector('.entry-card.student p'); if (el) el.textContent = sdesc; }
+
+  }
 
   /* ══ PWA ══ */
   let _deferredPrompt = null;

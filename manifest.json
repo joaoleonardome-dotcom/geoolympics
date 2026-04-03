@@ -4,7 +4,7 @@
   "description": "Acervo de exercícios de Geometria Olímpica",
   "start_url": "/geoolympics/",
   "display": "standalone",
-  "orientation": "portrait-primary",
+  "orientation": "any",
   "background_color": "#FAF8F3",
   "theme_color": "#7B74B8",
   "lang": "pt-BR",
