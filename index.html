@@ -1,0 +1,1111 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GeoOlympics — Geometria Olímpica</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+
+  <!-- ══ PWA ══ -->
+  <link rel="manifest" href="/geoolympics/manifest.json" />
+  <meta name="theme-color" content="#7B74B8" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content="GeoOlympics" />
+  <link rel="apple-touch-icon" href="/geoolympics/icons/apple-touch-icon.png" />
+  <link rel="icon" type="image/png" sizes="32x32" href="/geoolympics/icons/favicon-32x32.png" />
+
+  <!-- ══ FIREBASE SDK ══ -->
+  <script type="module">
+    import { initializeApp }                     from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getFirestore, collection, getDocs,
+             addDoc, updateDoc, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+    /* ══════════════════════════════════════════════════
+       🔧 COLE SUAS CREDENCIAIS DO FIREBASE AQUI ABAIXO
+       Acesse: Firebase Console → Seu Projeto → ⚙️ → Config do app web
+    ══════════════════════════════════════════════════ */
+    const firebaseConfig = {
+      apiKey:            "AIzaSyDpSTIwKtx-l4sTmcCKGgOdrpRDLOnibu8",
+      authDomain:        "geoolimpics.firebaseapp.com",
+      projectId:         "geoolimpics",
+      storageBucket:     "geoolimpics.firebasestorage.app",
+      messagingSenderId: "724961934734",
+      appId:             "1:724961934734:web:0576a448ecfb7d2a7c78df"
+    };
+    /* ══════════════════════════════════════════════════ */
+
+    const app = initializeApp(firebaseConfig);
+    const db  = getFirestore(app);
+
+    /* ── expõe ao escopo global ── */
+    window._fb = { db, collection, getDocs, addDoc, updateDoc, deleteDoc, doc };
+
+    /* ── carrega exercícios ao iniciar ── */
+    window.addEventListener('DOMContentLoaded', () => loadExercises());
+  </script>
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    /* ══ TOKENS ══ */
+    :root {
+      --sage:          #B8D4C8;
+      --sage-light:    #E8F2EE;
+      --sage-dark:     #6B9E8A;
+      --lavender:      #C5C0DF;
+      --lavender-light:#EDEAF8;
+      --lavender-dark: #7B74B8;
+      --peach:         #F0C9B0;
+      --peach-light:   #FBF0E8;
+      --peach-dark:    #C4855A;
+      --sky:           #B0CDE0;
+      --sky-light:     #E6F2FA;
+      --cream:         #FAF8F3;
+      --text:          #3D3A4E;
+      --text-muted:    #7A7891;
+      --white:         #FFFFFF;
+      --border:        rgba(61,58,78,0.1);
+      --shadow:        rgba(61,58,78,0.08);
+      --shadow-md:     rgba(61,58,78,0.14);
+      --bg:            var(--cream);
+      --card-bg:       var(--white);
+      --input-bg:      var(--cream);
+    }
+
+    /* ══ DARK MODE ══ */
+    [data-theme="dark"] {
+      --cream:         #1A1825;
+      --white:         #252236;
+      --text:          #E8E6F0;
+      --text-muted:    #9994B0;
+      --border:        rgba(255,255,255,0.09);
+      --shadow:        rgba(0,0,0,0.25);
+      --shadow-md:     rgba(0,0,0,0.4);
+      --sage-light:    rgba(107,158,138,0.15);
+      --lavender-light:rgba(123,116,184,0.15);
+      --peach-light:   rgba(196,133,90,0.12);
+      --sky-light:     rgba(176,205,224,0.12);
+      --bg:            #1A1825;
+      --card-bg:       #252236;
+      --input-bg:      #1A1825;
+    }
+
+    html { scroll-behavior: smooth; }
+    body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; line-height: 1.6; transition: background 0.3s, color 0.3s; }
+
+    .screen { display: none; }
+    .screen.active { display: block; animation: fadeIn 0.4s ease; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* ══ THEME TOGGLE ══ */
+    .theme-toggle {
+      position: fixed; top: 1rem; right: 1rem; z-index: 200;
+      width: 40px; height: 40px; border-radius: 50%;
+      border: 1px solid var(--border); background: var(--card-bg);
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+      font-size: 1.1rem; box-shadow: 0 2px 10px var(--shadow);
+      transition: transform 0.2s, background 0.3s;
+    }
+    .theme-toggle:hover { transform: scale(1.1); }
+
+    /* ══ LANDING ══ */
+    .landing {
+      min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 2rem;
+      background: radial-gradient(ellipse at 10% 20%, rgba(197,192,223,0.2) 0%, transparent 55%),
+                  radial-gradient(ellipse at 90% 80%, rgba(184,212,200,0.25) 0%, transparent 55%), var(--bg);
+      position: relative; overflow: hidden;
+    }
+    [data-theme="dark"] .landing {
+      background: radial-gradient(ellipse at 10% 20%, rgba(123,116,184,0.12) 0%, transparent 55%),
+                  radial-gradient(ellipse at 90% 80%, rgba(107,158,138,0.1) 0%, transparent 55%), var(--bg);
+    }
+    .landing::before { content: ''; position: absolute; top: -80px; right: -80px; width: 320px; height: 320px; border: 2px solid rgba(197,192,223,0.25); border-radius: 50%; pointer-events: none; }
+    .landing::after  { content: ''; position: absolute; bottom: -60px; left: -60px; width: 240px; height: 240px; border: 2px solid rgba(184,212,200,0.3); transform: rotate(45deg); pointer-events: none; }
+    .landing-inner { position: relative; z-index: 1; text-align: center; }
+
+    .geo-banner { display: flex; align-items: center; justify-content: center; gap: 14px; margin-bottom: 2rem; }
+    .geo-triangle { width: 0; height: 0; border-left: 24px solid transparent; border-right: 24px solid transparent; border-bottom: 42px solid var(--peach); opacity: 0.7; }
+    .geo-circle   { width: 44px; height: 44px; border-radius: 50%; background: var(--sage); opacity: 0.65; }
+    .geo-square   { width: 38px; height: 38px; background: var(--lavender); opacity: 0.65; transform: rotate(12deg); }
+    .geo-hex      { width: 44px; height: 44px; background: var(--sky); clip-path: polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%); opacity: 0.65; }
+
+    .landing-logo { font-family: 'Playfair Display', serif; font-size: 3rem; font-weight: 700; color: var(--text); letter-spacing: -1.5px; line-height: 1; margin-bottom: 0.5rem; }
+    .landing-sub  { font-size: 0.78rem; color: var(--text-muted); letter-spacing: 3px; text-transform: uppercase; margin-bottom: 3rem; }
+
+    .cards-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 1.2rem; width: 100%; max-width: 580px; margin: 0 auto; }
+
+    .entry-card { background: var(--card-bg); border-radius: 22px; padding: 2rem 1.6rem; cursor: pointer; border: 1.5px solid var(--border); transition: transform 0.25s, box-shadow 0.25s, border-color 0.25s; text-align: center; position: relative; overflow: hidden; }
+    .entry-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px; }
+    .entry-card.student::before { background: linear-gradient(90deg, var(--sage), var(--sage-dark)); }
+    .entry-card.admin::before   { background: linear-gradient(90deg, var(--lavender), var(--lavender-dark)); }
+    .entry-card:hover { transform: translateY(-6px); box-shadow: 0 20px 50px var(--shadow-md); border-color: transparent; }
+    .entry-card .icon { width: 60px; height: 60px; border-radius: 18px; margin: 0 auto 1.1rem; display: flex; align-items: center; justify-content: center; font-size: 1.7rem; }
+    .student .icon { background: var(--sage-light); }
+    .admin   .icon { background: var(--lavender-light); }
+    .entry-card h3 { font-family: 'Playfair Display', serif; font-size: 1.15rem; font-weight: 600; color: var(--text); margin-bottom: 0.5rem; }
+    .entry-card p  { font-size: 0.82rem; color: var(--text-muted); line-height: 1.6; }
+    .entry-card .badge { display: inline-block; margin-top: 1.1rem; padding: 4px 14px; border-radius: 20px; font-size: 0.72rem; font-weight: 500; letter-spacing: 0.5px; }
+    .student .badge { background: var(--sage-light);    color: var(--sage-dark); }
+    .admin   .badge { background: var(--lavender-light); color: var(--lavender-dark); }
+
+    /* ══ MODAL ══ */
+    .modal-overlay { position: fixed; inset: 0; background: rgba(20,18,35,0.6); display: flex; align-items: center; justify-content: center; z-index: 9999; backdrop-filter: blur(6px); animation: fadeIn 0.2s ease; }
+    .modal-box { background: var(--card-bg); border-radius: 22px; padding: 2.2rem; width: 100%; max-width: 380px; margin: 1rem; box-shadow: 0 30px 80px rgba(20,18,35,0.35); animation: slideUp 0.3s ease; border: 1px solid var(--border); }
+    @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    .modal-box .modal-icon { font-size: 2rem; margin-bottom: 0.8rem; }
+    .modal-box h3 { font-family: 'Playfair Display', serif; font-size: 1.35rem; margin-bottom: 0.3rem; color: var(--text); }
+    .modal-box > p { font-size: 0.83rem; color: var(--text-muted); margin-bottom: 1.5rem; }
+    .modal-error { font-size: 0.8rem; color: #C0514F; background: rgba(192,81,79,0.1); border-radius: 8px; padding: 0.5rem 0.8rem; margin-bottom: 0.8rem; display: none; }
+    .modal-box input[type="password"] { width: 100%; padding: 0.75rem 1rem; border: 1.5px solid var(--border); border-radius: 12px; font-family: 'DM Sans', sans-serif; font-size: 0.9rem; color: var(--text); background: var(--input-bg); margin-bottom: 1rem; outline: none; transition: border-color 0.2s; letter-spacing: 3px; }
+    .modal-box input[type="password"]:focus { border-color: var(--lavender-dark); background: var(--card-bg); }
+
+    .btn { display: block; width: 100%; padding: 0.75rem 1.4rem; border-radius: 12px; border: none; cursor: pointer; font-family: 'DM Sans', sans-serif; font-size: 0.9rem; font-weight: 500; transition: all 0.2s; text-align: center; }
+    .btn-primary { background: var(--lavender-dark); color: #fff; }
+    .btn-primary:hover:not(:disabled) { background: #6a62a8; }
+    .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+    .btn-ghost { background: transparent; border: 1.5px solid var(--border); color: var(--text-muted); margin-top: 0.6rem; }
+    .btn-ghost:hover { background: var(--input-bg); }
+
+    /* ══ LIGHTBOX ══ */
+    #lightbox { position: fixed; inset: 0; background: rgba(12,10,24,0.95); display: none; align-items: center; justify-content: center; z-index: 10000; flex-direction: column; padding: 1.5rem; backdrop-filter: blur(10px); }
+    #lightbox.open { display: flex; animation: fadeIn 0.22s ease; }
+    .lb-inner { position: relative; display: flex; flex-direction: column; align-items: center; gap: 1rem; max-width: 96vw; max-height: 92vh; }
+    .lb-img { max-width: 90vw; max-height: 84vh; object-fit: contain; border-radius: 10px; box-shadow: 0 32px 90px rgba(0,0,0,0.7); display: block; }
+    .lb-close { position: absolute; top: -18px; right: -18px; width: 38px; height: 38px; border-radius: 50%; background: #fff; border: none; font-size: 1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 14px rgba(0,0,0,0.4); transition: transform 0.18s; }
+    .lb-close:hover { transform: scale(1.12); }
+    .lb-label { color: rgba(255,255,255,0.5); font-size: 0.75rem; letter-spacing: 1.2px; text-transform: uppercase; }
+
+    /* ══ TOP BAR ══ */
+    .topbar { display: flex; align-items: center; justify-content: space-between; padding: 1rem 1.8rem; background: var(--card-bg); border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100; transition: background 0.3s; }
+    .topbar-logo { font-family: 'Playfair Display', serif; font-size: 1.3rem; font-weight: 700; color: var(--text); }
+    .topbar-right { display: flex; align-items: center; gap: 0.8rem; }
+    .topbar-badge { font-size: 0.72rem; padding: 4px 12px; border-radius: 20px; font-weight: 500; }
+    .badge-student { background: var(--sage-light);    color: var(--sage-dark); }
+    .badge-admin   { background: var(--lavender-light); color: var(--lavender-dark); }
+    .btn-back { background: transparent; border: 1px solid var(--border); border-radius: 8px; padding: 5px 14px; font-size: 0.8rem; color: var(--text-muted); cursor: pointer; font-family: 'DM Sans', sans-serif; transition: background 0.2s; }
+    .btn-back:hover { background: var(--input-bg); }
+    .topbar-theme { background: transparent; border: 1px solid var(--border); border-radius: 8px; padding: 5px 10px; font-size: 0.88rem; cursor: pointer; transition: background 0.2s; }
+    .topbar-theme:hover { background: var(--input-bg); }
+
+    /* ══ LOADING OVERLAY ══ */
+    .loading-overlay { position: fixed; inset: 0; background: var(--bg); display: flex; align-items: center; justify-content: center; z-index: 300; flex-direction: column; gap: 1rem; transition: opacity 0.3s; }
+    .loading-overlay.hidden { opacity: 0; pointer-events: none; }
+    .loading-spinner { width: 38px; height: 38px; border: 3px solid var(--border); border-top-color: var(--lavender-dark); border-radius: 50%; animation: spin 0.7s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .loading-text { font-size: 0.82rem; color: var(--text-muted); }
+
+    /* ══ STUDENT VIEW ══ */
+    .student-view { padding: 1.8rem; max-width: 900px; margin: 0 auto; }
+
+    .filter-bar { display: flex; gap: 0.6rem; flex-wrap: wrap; align-items: center; margin-bottom: 1rem; }
+    .filter-label { font-size: 0.78rem; color: var(--text-muted); margin-right: 0.2rem; }
+    .filter-btn { padding: 5px 16px; border-radius: 20px; border: 1px solid var(--border); background: var(--card-bg); font-size: 0.78rem; color: var(--text-muted); cursor: pointer; transition: all 0.2s; font-family: 'DM Sans', sans-serif; }
+    .filter-btn:hover  { background: var(--lavender-light); border-color: var(--lavender); }
+    .filter-btn.active { background: var(--lavender-dark); color: #fff; border-color: var(--lavender-dark); }
+    .filter-input { padding: 6px 14px; border-radius: 20px; border: 1px solid var(--border); font-family: 'DM Sans', sans-serif; font-size: 0.78rem; color: var(--text); background: var(--card-bg); outline: none; width: 200px; transition: border-color 0.2s; margin-left: auto; }
+    .filter-input:focus { border-color: var(--lavender-dark); }
+
+    /* tags row */
+    .tags-bar { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1.4rem; }
+    .tag-btn { padding: 4px 13px; border-radius: 20px; border: 1px solid var(--border); background: var(--card-bg); font-size: 0.74rem; color: var(--text-muted); cursor: pointer; transition: all 0.2s; font-family: 'DM Sans', sans-serif; }
+    .tag-btn:hover  { background: var(--sky-light); border-color: var(--sky); color: var(--text); }
+    .tag-btn.active { background: var(--sky); border-color: var(--sky); color: var(--text); font-weight: 500; }
+
+    .section-header { display: flex; align-items: baseline; gap: 0.8rem; margin-bottom: 1.2rem; }
+    .section-title  { font-family: 'Playfair Display', serif; font-size: 1.5rem; font-weight: 600; color: var(--text); }
+    .section-count  { font-size: 0.8rem; color: var(--text-muted); }
+
+    /* ── LISTA ACORDEÃO ── */
+    .exercises-list { display: flex; flex-direction: column; border-radius: 16px; overflow: hidden; border: 1px solid var(--border); }
+
+    .ex-row { background: var(--card-bg); border-bottom: 1px solid var(--border); transition: background 0.15s; }
+    .ex-row:last-child { border-bottom: none; }
+
+    .ex-row-header { display: flex; align-items: center; gap: 1rem; padding: 1rem 1.4rem; cursor: pointer; user-select: none; transition: background 0.15s; }
+    .ex-row-header:hover { background: var(--input-bg); }
+    .ex-row.open > .ex-row-header { background: var(--lavender-light); }
+
+    .ex-row-num   { font-size: 0.75rem; color: var(--text-muted); min-width: 90px; flex-shrink: 0; font-variant-numeric: tabular-nums; }
+    .ex-row-title { font-family: 'Playfair Display', serif; font-size: 1rem; font-weight: 600; color: var(--text); flex: 1; }
+    .ex-row-tags  { display: flex; gap: 0.3rem; flex-shrink: 0; flex-wrap: wrap; }
+    .ex-row-tag   { font-size: 0.64rem; padding: 2px 8px; border-radius: 20px; background: var(--sky-light); color: var(--text-muted); border: 1px solid var(--border); }
+    .ex-row-level { font-size: 0.7rem; padding: 3px 11px; border-radius: 20px; font-weight: 500; flex-shrink: 0; }
+    .level-easy { background: var(--sage-light);    color: var(--sage-dark); }
+    .level-med  { background: var(--peach-light);   color: var(--peach-dark); }
+    .level-hard { background: var(--lavender-light); color: var(--lavender-dark); }
+    .ex-row-chevron { color: var(--lavender-dark); font-size: 0.75rem; transition: transform 0.25s; flex-shrink: 0; }
+    .ex-row.open .ex-row-chevron { transform: rotate(90deg); }
+
+    .ex-row-body { display: none; padding: 1.4rem; background: var(--input-bg); border-top: 1px solid var(--border); animation: expandDown 0.25s ease; }
+    .ex-row.open .ex-row-body { display: block; }
+    @keyframes expandDown { from { opacity: 0; } to { opacity: 1; } }
+
+    .ex-body-desc { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1.2rem; line-height: 1.65; }
+
+    .ex-images-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1.2rem; }
+    .ex-img-block > label { font-size: 0.68rem; font-weight: 500; color: var(--text-muted); letter-spacing: 1px; text-transform: uppercase; display: block; margin-bottom: 0.5rem; }
+
+    .ex-img-thumb { width: 100%; aspect-ratio: 4/3; border-radius: 10px; background: var(--card-bg); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; overflow: hidden; cursor: pointer; position: relative; transition: box-shadow 0.2s; }
+    .ex-img-thumb:hover { box-shadow: 0 8px 28px var(--shadow-md); }
+    .ex-img-thumb img { width: 100%; height: 100%; object-fit: contain; display: block; }
+    .zoom-overlay { position: absolute; inset: 0; background: rgba(61,58,78,0); display: flex; align-items: center; justify-content: center; transition: background 0.2s; border-radius: 10px; }
+    .ex-img-thumb:hover .zoom-overlay { background: rgba(61,58,78,0.18); }
+    .zoom-overlay span { background: rgba(255,255,255,0.92); border-radius: 8px; padding: 5px 14px; font-size: 0.75rem; font-weight: 500; color: #3D3A4E; opacity: 0; transition: opacity 0.2s; }
+    .ex-img-thumb:hover .zoom-overlay span { opacity: 1; }
+
+    .ex-img-empty { width: 100%; aspect-ratio: 4/3; border-radius: 10px; background: var(--card-bg); border: 1px dashed var(--border); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.5rem; }
+    .ex-img-empty svg { opacity: 0.18; }
+    .ex-img-empty span { font-size: 0.75rem; color: var(--text-muted); }
+
+    .sol-locked { width: 100%; aspect-ratio: 4/3; border-radius: 10px; background: var(--card-bg); border: 1px solid var(--border); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.5rem; cursor: pointer; transition: all 0.2s; }
+    .sol-locked:hover { background: var(--sage-light); border-color: var(--sage); }
+    .sol-lock-icon { font-size: 1.5rem; opacity: 0.35; }
+    .sol-lock-text { font-size: 0.8rem; color: var(--text-muted); font-weight: 500; }
+    .sol-lock-hint { font-size: 0.72rem; color: var(--sage-dark); }
+
+    .sol-revealed { position: relative; }
+    .sol-badge { position: absolute; top: 8px; left: 8px; background: var(--sage-dark); color: #fff; font-size: 0.64rem; padding: 2px 9px; border-radius: 20px; font-weight: 500; letter-spacing: 0.5px; z-index: 2; }
+    .sol-hide-btn { display: block; margin-top: 0.5rem; background: transparent; border: none; font-size: 0.75rem; color: var(--text-muted); cursor: pointer; font-family: 'DM Sans', sans-serif; transition: color 0.2s; }
+    .sol-hide-btn:hover { color: var(--text); }
+
+    /* ══ ADMIN VIEW ══ */
+    .admin-view { padding: 1.8rem; max-width: 960px; margin: 0 auto; }
+
+    .stat-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-bottom: 1.8rem; }
+    .stat-card { background: var(--card-bg); border-radius: 14px; border: 1px solid var(--border); padding: 1.2rem; }
+    .stat-card .stat-val   { font-family: 'Playfair Display', serif; font-size: 2.2rem; font-weight: 700; color: var(--text); line-height: 1; }
+    .stat-card .stat-label { font-size: 0.75rem; color: var(--text-muted); margin-top: 4px; }
+
+    .admin-tabs { display: inline-flex; gap: 0.4rem; background: var(--card-bg); border-radius: 14px; padding: 0.4rem; border: 1px solid var(--border); margin-bottom: 1.5rem; }
+    .tab-btn { padding: 0.5rem 1.3rem; border-radius: 10px; border: none; background: transparent; font-family: 'DM Sans', sans-serif; font-size: 0.85rem; color: var(--text-muted); cursor: pointer; transition: all 0.2s; }
+    .tab-btn.active { background: var(--lavender-dark); color: #fff; }
+
+    .admin-panel { display: none; }
+    .admin-panel.active { display: block; }
+
+    .edit-mode-banner { background: var(--peach-light); border: 1px solid var(--peach); border-radius: 10px; padding: 0.65rem 1rem; font-size: 0.82rem; color: var(--peach-dark); margin-bottom: 1rem; display: none; }
+
+    .form-card { background: var(--card-bg); border-radius: 18px; border: 1px solid var(--border); padding: 1.8rem; margin-bottom: 1.3rem; }
+    .form-card h4 { font-family: 'Playfair Display', serif; font-size: 1.15rem; font-weight: 600; color: var(--text); margin-bottom: 1.3rem; padding-bottom: 0.9rem; border-bottom: 1px solid var(--border); }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem; }
+    .form-group { display: flex; flex-direction: column; gap: 0.4rem; }
+    .form-group.full { grid-column: 1 / -1; }
+    .form-group label { font-size: 0.77rem; font-weight: 500; color: var(--text-muted); letter-spacing: 0.3px; }
+    .form-group input, .form-group select, .form-group textarea { padding: 0.7rem 1rem; border: 1.5px solid var(--border); border-radius: 12px; font-family: 'DM Sans', sans-serif; font-size: 0.88rem; color: var(--text); background: var(--input-bg); outline: none; transition: border-color 0.2s, background 0.2s; resize: vertical; }
+    .form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: var(--lavender-dark); background: var(--card-bg); }
+
+    /* tags input no admin */
+    .tags-input-wrap { display: flex; flex-wrap: wrap; gap: 0.4rem; padding: 0.6rem 0.8rem; border: 1.5px solid var(--border); border-radius: 12px; background: var(--input-bg); cursor: text; transition: border-color 0.2s; }
+    .tags-input-wrap:focus-within { border-color: var(--lavender-dark); background: var(--card-bg); }
+    .tag-chip { display: flex; align-items: center; gap: 4px; background: var(--sky-light); border: 1px solid var(--sky); border-radius: 20px; padding: 2px 10px; font-size: 0.75rem; color: var(--text); }
+    .tag-chip button { background: none; border: none; cursor: pointer; color: var(--text-muted); font-size: 0.8rem; padding: 0; line-height: 1; }
+    .tag-chip button:hover { color: var(--text); }
+    .tags-input { border: none; outline: none; background: transparent; font-family: 'DM Sans', sans-serif; font-size: 0.82rem; color: var(--text); min-width: 100px; padding: 2px 4px; }
+    .tags-hint { font-size: 0.72rem; color: var(--text-muted); margin-top: 0.25rem; }
+
+    .upload-box { border: 2px dashed var(--border); border-radius: 14px; padding: 1.5rem 1rem; text-align: center; cursor: pointer; transition: all 0.2s; background: var(--input-bg); }
+    .upload-box:hover { border-color: var(--lavender-dark); background: var(--lavender-light); }
+    .upload-box input[type="file"] { display: none; }
+    .upload-box .up-icon { font-size: 1.8rem; margin-bottom: 0.4rem; opacity: 0.4; }
+    .upload-box .up-text { font-size: 0.78rem; color: var(--text-muted); line-height: 1.5; }
+    .upload-preview { width: 100%; max-height: 120px; object-fit: contain; border-radius: 8px; margin-top: 0.7rem; display: none; }
+
+    .form-actions { display: flex; gap: 0.8rem; align-items: center; margin-top: 0.5rem; flex-wrap: wrap; }
+    .btn-save { background: var(--lavender-dark); color: #fff; border: none; padding: 0.75rem 2rem; border-radius: 12px; font-family: 'DM Sans', sans-serif; font-size: 0.9rem; font-weight: 500; cursor: pointer; transition: all 0.2s; display: inline-flex; align-items: center; gap: 8px; }
+    .btn-save:hover:not(:disabled) { background: #6a62a8; transform: translateY(-1px); box-shadow: 0 6px 20px rgba(123,116,184,0.3); }
+    .btn-save:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+    .btn-save:active { transform: scale(0.98); }
+    .btn-cancel-edit { background: transparent; border: 1.5px solid var(--border); color: var(--text-muted); padding: 0.72rem 1.2rem; border-radius: 12px; font-family: 'DM Sans', sans-serif; font-size: 0.88rem; cursor: pointer; transition: background 0.2s; display: none; }
+    .btn-cancel-edit:hover { background: var(--input-bg); }
+
+    .admin-list { display: flex; flex-direction: column; gap: 0.85rem; }
+    .admin-item { background: var(--card-bg); border-radius: 14px; border: 1px solid var(--border); padding: 1rem 1.3rem; display: flex; align-items: center; gap: 1rem; transition: box-shadow 0.2s; }
+    .admin-item:hover { box-shadow: 0 4px 16px var(--shadow); }
+    .admin-item-thumb { width: 66px; height: 54px; border-radius: 10px; background: var(--input-bg); border: 1px solid var(--border); flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; overflow: hidden; }
+    .admin-item-thumb img { width: 100%; height: 100%; object-fit: contain; }
+    .admin-item-info { flex: 1; min-width: 0; }
+    .admin-item-info strong { font-size: 0.9rem; font-weight: 500; color: var(--text); display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .admin-item-info span  { font-size: 0.75rem; color: var(--text-muted); }
+    .admin-item-actions { display: flex; gap: 0.5rem; flex-shrink: 0; }
+    .btn-icon { width: 34px; height: 34px; border-radius: 8px; border: 1px solid var(--border); background: transparent; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 0.88rem; transition: all 0.2s; }
+    .btn-icon:hover        { background: var(--input-bg); }
+    .btn-icon.edit:hover   { background: var(--lavender-light); border-color: var(--lavender); }
+    .btn-icon.danger:hover { background: rgba(192,81,79,0.1); border-color: #E9A0A0; }
+
+    .empty-state { text-align: center; padding: 3.5rem 1rem; color: var(--text-muted); }
+    .empty-geo   { font-size: 3rem; opacity: 0.18; margin-bottom: 1rem; }
+    .empty-state p { font-size: 0.85rem; }
+
+    .toast { position: fixed; bottom: 1.8rem; right: 1.8rem; background: var(--sage-dark); color: #fff; padding: 0.8rem 1.4rem; border-radius: 12px; font-size: 0.85rem; font-weight: 500; z-index: 9999; box-shadow: 0 8px 24px rgba(107,158,138,0.35); display: none; animation: slideToast 0.3s ease; }
+    @keyframes slideToast { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* ══ PWA INSTALL BANNER ══ */
+    #installBanner {
+      display: none;
+      position: fixed; bottom: 1.5rem; left: 50%; transform: translateX(-50%);
+      background: var(--card-bg); border: 1.5px solid var(--lavender);
+      border-radius: 18px; padding: 0.9rem 1.4rem;
+      box-shadow: 0 12px 40px var(--shadow-md);
+      z-index: 500; flex-direction: row; align-items: center; gap: 1rem;
+      max-width: calc(100vw - 2rem); animation: slideToast 0.35s ease;
+      white-space: nowrap;
+    }
+    #installBanner.visible { display: flex; }
+    .install-icon { font-size: 1.5rem; flex-shrink: 0; }
+    .install-text { flex: 1; min-width: 0; }
+    .install-text strong { display: block; font-size: 0.85rem; color: var(--text); font-weight: 500; }
+    .install-text span   { font-size: 0.75rem; color: var(--text-muted); }
+    .install-actions { display: flex; gap: 0.5rem; flex-shrink: 0; }
+    .btn-install {
+      background: var(--lavender-dark); color: #fff;
+      border: none; border-radius: 10px; padding: 0.5rem 1.1rem;
+      font-family: 'DM Sans', sans-serif; font-size: 0.82rem; font-weight: 500;
+      cursor: pointer; transition: background 0.2s;
+    }
+    .btn-install:hover { background: #6a62a8; }
+    .btn-install-dismiss {
+      background: transparent; border: 1px solid var(--border);
+      border-radius: 10px; padding: 0.5rem 0.8rem;
+      font-family: 'DM Sans', sans-serif; font-size: 0.82rem;
+      color: var(--text-muted); cursor: pointer; transition: background 0.2s;
+    }
+    .btn-install-dismiss:hover { background: var(--input-bg); }
+
+    /* ══ RESPONSIVE ══ */
+    @media (max-width: 640px) {
+      .landing-logo { font-size: 2.2rem; }
+      .form-row { grid-template-columns: 1fr; }
+      .stat-row { grid-template-columns: repeat(2, 1fr); }
+      .filter-input { width: 100%; margin-left: 0; }
+      .topbar { padding: 0.9rem 1rem; }
+      .ex-images-row { grid-template-columns: 1fr; }
+      .ex-row-num { min-width: 56px; }
+      .ex-row-tags { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ══ LOADING ══ -->
+<div class="loading-overlay" id="loadingOverlay">
+  <div class="loading-spinner"></div>
+  <div class="loading-text">Carregando acervo…</div>
+</div>
+
+<!-- ══ THEME TOGGLE (landing) ══ -->
+<button class="theme-toggle" id="themeToggleLanding" onclick="toggleTheme()" title="Alternar tema">🌙</button>
+
+<!-- ══ LANDING ══ -->
+<div id="landing" class="screen active">
+  <div class="landing">
+    <div class="landing-inner">
+      <div class="geo-banner">
+        <div class="geo-triangle"></div>
+        <div class="geo-circle"></div>
+        <div class="geo-square"></div>
+        <div class="geo-hex"></div>
+      </div>
+      <div class="landing-logo">GeoOlympics</div>
+      <div class="landing-sub">Geometria Olímpica</div>
+      <div class="cards-grid">
+        <div class="entry-card student" onclick="goStudent()">
+          <div class="icon">📐</div>
+          <h3>Professores e Estudantes</h3>
+          <p>Visualize e explore os exercícios e soluções das aulas de geometria olímpica</p>
+          <span class="badge">Acesso Livre</span>
+        </div>
+        <div class="entry-card admin" onclick="showAdminModal()">
+          <div class="icon">🔑</div>
+          <h3>Administrador</h3>
+          <p>Cadastre exercícios, soluções e gerencie o acervo completo</p>
+          <span class="badge">Acesso Restrito</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ MODAL LOGIN ══ -->
+<div id="adminModal" class="modal-overlay" style="display:none;" onclick="closeModalOutside(event)">
+  <div class="modal-box" onclick="event.stopPropagation()">
+    <div class="modal-icon">🔐</div>
+    <h3>Área do Administrador</h3>
+    <p>Insira a senha para acessar o painel de gerenciamento</p>
+    <div class="modal-error" id="modalError">Senha incorreta. Tente novamente.</div>
+    <input type="password" id="adminPass" placeholder="••••••••" onkeydown="if(event.key==='Enter')checkAdmin()" />
+    <button class="btn btn-primary" id="loginBtn" onclick="checkAdmin()">Entrar</button>
+    <button class="btn btn-ghost"  onclick="closeAdminModal()">Cancelar</button>
+  </div>
+</div>
+
+<!-- ══ LIGHTBOX ══ -->
+<div id="lightbox" onclick="closeLightbox()">
+  <div class="lb-inner" onclick="event.stopPropagation()">
+    <button class="lb-close" onclick="closeLightbox()">✕</button>
+    <img class="lb-img" id="lbImg" src="" alt="" />
+    <div class="lb-label" id="lbLabel"></div>
+  </div>
+</div>
+
+<!-- ══ STUDENT VIEW ══ -->
+<div id="studentView" class="screen">
+  <div class="topbar">
+    <span class="topbar-logo">GeoOlympics</span>
+    <div class="topbar-right">
+      <span class="topbar-badge badge-student">Visualização</span>
+      <button class="topbar-theme" onclick="toggleTheme()" title="Alternar tema">🌙</button>
+      <button class="btn-back" onclick="goHome()">← Início</button>
+    </div>
+  </div>
+  <div class="student-view">
+
+    <!-- filtros de nível -->
+    <div class="filter-bar">
+      <span class="filter-label">Nível:</span>
+      <button class="filter-btn active" onclick="filterExercises('todos', this)">Todos</button>
+      <button class="filter-btn" onclick="filterExercises('Fácil', this)">Fácil</button>
+      <button class="filter-btn" onclick="filterExercises('Médio', this)">Médio</button>
+      <button class="filter-btn" onclick="filterExercises('Difícil', this)">Difícil</button>
+      <input class="filter-input" id="searchInput" placeholder="🔍  Buscar exercício…" oninput="searchExercises(this.value)" />
+    </div>
+
+    <!-- filtros por tag -->
+    <div class="tags-bar" id="tagsBar"></div>
+
+    <div class="section-header">
+      <span class="section-title">Exercícios</span>
+      <span class="section-count" id="exCount"></span>
+    </div>
+    <div class="exercises-list" id="exercisesList"></div>
+  </div>
+</div>
+
+<!-- ══ ADMIN VIEW ══ -->
+<div id="adminView" class="screen">
+  <div class="topbar">
+    <span class="topbar-logo">GeoOlympics</span>
+    <div class="topbar-right">
+      <span class="topbar-badge badge-admin">Administrador</span>
+      <button class="topbar-theme" onclick="toggleTheme()" title="Alternar tema">🌙</button>
+      <button class="btn-back" onclick="goHome()">← Sair</button>
+    </div>
+  </div>
+  <div class="admin-view">
+    <div class="stat-row" id="statRow"></div>
+    <div class="admin-tabs">
+      <button class="tab-btn active" id="tabAdd"  onclick="switchTab('add',  this)">+ Novo Exercício</button>
+      <button class="tab-btn"        id="tabList" onclick="switchTab('list', this)">Gerenciar Acervo</button>
+    </div>
+
+    <!-- PAINEL CADASTRO / EDIÇÃO -->
+    <div id="panel-add" class="admin-panel active">
+      <div class="edit-mode-banner" id="editBanner">✏️ Modo edição — você está alterando um exercício existente</div>
+      <div class="form-card">
+        <h4 id="formTitle">Cadastrar Novo Exercício</h4>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Título do Exercício</label>
+            <input type="text" id="exTitle" placeholder="Ex: Triângulo Inscrito no Círculo" />
+          </div>
+          <div class="form-group">
+            <label>Nível de Dificuldade</label>
+            <select id="exLevel">
+              <option value="Fácil">Fácil</option>
+              <option value="Médio" selected>Médio</option>
+              <option value="Difícil">Difícil</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group full">
+            <label>Enunciado / Descrição</label>
+            <textarea id="exDesc" rows="3" placeholder="Descreva o enunciado do problema…"></textarea>
+          </div>
+        </div>
+
+        <!-- TAGS -->
+        <div class="form-row">
+          <div class="form-group full">
+            <label>Categorias / Tags</label>
+            <div class="tags-input-wrap" id="tagsInputWrap" onclick="document.getElementById('tagInput').focus()">
+              <input type="text" id="tagInput" class="tags-input" placeholder="Digite e pressione Enter…" onkeydown="handleTagInput(event)" />
+            </div>
+            <span class="tags-hint">Exemplos: Triângulos, Círculos, Ângulos, Quadriláteros, Polígonos</span>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Imagem do Exercício</label>
+            <div class="upload-box" onclick="triggerUpload('exImg')">
+              <div class="up-icon">🖼️</div>
+              <div class="up-text" id="exImgText">Clique para selecionar<br /><small>PNG, JPG, WEBP</small></div>
+              <input type="file" id="exImg" accept="image/*" onchange="previewImg(this,'prevEx','prevExWrap','exImgText')" />
+              <div id="prevExWrap"><img id="prevEx" class="upload-preview" /></div>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Imagem da Solução</label>
+            <div class="upload-box" onclick="triggerUpload('solImg')">
+              <div class="up-icon">✅</div>
+              <div class="up-text" id="solImgText">Clique para selecionar<br /><small>PNG, JPG, WEBP</small></div>
+              <input type="file" id="solImg" accept="image/*" onchange="previewImg(this,'prevSol','prevSolWrap','solImgText')" />
+              <div id="prevSolWrap"><img id="prevSol" class="upload-preview" /></div>
+            </div>
+          </div>
+        </div>
+        <div class="form-actions">
+          <button class="btn-save" id="saveBtn" onclick="saveExercise()">
+            <span id="saveBtnIcon">💾</span> <span id="saveBtnText">Salvar Exercício</span>
+          </button>
+          <button class="btn-cancel-edit" id="cancelEditBtn" onclick="cancelEdit()">Cancelar edição</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- PAINEL GERENCIAR -->
+    <div id="panel-list" class="admin-panel">
+      <div class="admin-list" id="adminList"></div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<!-- ══ PWA INSTALL BANNER ══ -->
+<div id="installBanner">
+  <div class="install-icon">📐</div>
+  <div class="install-text">
+    <strong>Instalar GeoOlympics</strong>
+    <span>Adicione à tela inicial para acesso rápido</span>
+  </div>
+  <div class="install-actions">
+    <button class="btn-install" onclick="pwaInstall()">Instalar</button>
+    <button class="btn-install-dismiss" onclick="pwaDismiss()">Agora não</button>
+  </div>
+</div>
+
+<script>
+  /* ── CONFIG ── */
+  const ADMIN_PASSWORD = 'geo2025'; // altere aqui para trocar a senha
+
+  /* ── STATE ── */
+  let exercises    = [];
+  let activeFilter = 'todos';
+  let activeSearch = '';
+  let activeTag    = '';
+  let editingId    = null;
+  let currentTags  = [];         // tags do formulário admin
+  let editingExImg = null;       // URL atual da imagem (modo edição)
+  let editingSolImg= null;
+
+  /* ── THEME ── */
+  function toggleTheme() {
+    const html = document.documentElement;
+    const dark = html.getAttribute('data-theme') === 'dark';
+    html.setAttribute('data-theme', dark ? 'light' : 'dark');
+    localStorage.setItem('geo_theme', dark ? 'light' : 'dark');
+    document.querySelectorAll('.topbar-theme, #themeToggleLanding').forEach(b => b.textContent = dark ? '🌙' : '☀️');
+  }
+  (function initTheme() {
+    const saved = localStorage.getItem('geo_theme') || 'light';
+    document.documentElement.setAttribute('data-theme', saved);
+    document.querySelectorAll('.topbar-theme, #themeToggleLanding').forEach(b => b.textContent = saved === 'dark' ? '☀️' : '🌙');
+  })();
+
+  /* ── NAVIGATION ── */
+  function showScreen(id) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    document.getElementById('themeToggleLanding').style.display = id === 'landing' ? 'flex' : 'none';
+    window.scrollTo(0, 0);
+  }
+  function goHome()    { showScreen('landing'); }
+  function goStudent() { renderTagsBar(); renderExercises(); showScreen('studentView'); }
+
+  /* ── FIREBASE: LOAD ── */
+  async function loadExercises() {
+    try {
+      const { db, collection, getDocs } = window._fb;
+      const snap = await getDocs(collection(db, 'exercises'));
+      exercises = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    } catch(e) {
+      console.error('Firebase load error:', e);
+      showToast('⚠️ Erro ao conectar ao Firebase. Verifique as credenciais.');
+    }
+    document.getElementById('loadingOverlay').classList.add('hidden');
+  }
+
+  /* ── FIREBASE: SAVE ── */
+  async function saveToFirebase(data, id = null) {
+    const { db, collection, addDoc, updateDoc, doc } = window._fb;
+    if (id) {
+      await updateDoc(doc(db, 'exercises', id), data);
+      return id;
+    } else {
+      const ref = await addDoc(collection(db, 'exercises'), data);
+      return ref.id;
+    }
+  }
+
+  /* ── FIREBASE: DELETE ── */
+  async function deleteFromFirebase(id) {
+    const { db, doc, deleteDoc } = window._fb;
+    await deleteDoc(doc(db, 'exercises', id));
+  }
+
+  /* ── ADMIN MODAL ── */
+  function showAdminModal() {
+    document.getElementById('adminModal').style.display = 'flex';
+    document.getElementById('adminPass').value = '';
+    document.getElementById('modalError').style.display = 'none';
+    document.getElementById('loginAttempts').style.display = 'none';
+    setTimeout(() => document.getElementById('adminPass').focus(), 120);
+  }
+  function closeAdminModal() { document.getElementById('adminModal').style.display = 'none'; }
+  function closeModalOutside(e) { if (e.target.id === 'adminModal') closeAdminModal(); }
+
+  function checkAdmin() {
+    if (document.getElementById('adminPass').value === ADMIN_PASSWORD) {
+      closeAdminModal();
+      renderAdmin();
+      showScreen('adminView');
+    } else {
+      document.getElementById('modalError').style.display = 'block';
+      document.getElementById('adminPass').value = '';
+      document.getElementById('adminPass').focus();
+    }
+  }
+
+  /* ── LIGHTBOX ── */
+  function openLightbox(src, label) {
+    document.getElementById('lbImg').src = src;
+    document.getElementById('lbLabel').textContent = label || '';
+    document.getElementById('lightbox').classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeLightbox() {
+    document.getElementById('lightbox').classList.remove('open');
+    document.body.style.overflow = '';
+  }
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeLightbox(); });
+
+  /* ── FILE UPLOAD ── */
+  function triggerUpload(id) { document.getElementById(id).click(); }
+  function previewImg(input, imgId, wrapId, textId) {
+    const file = input.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = e => {
+      const img = document.getElementById(imgId);
+      img.src = e.target.result;
+      img.style.display = 'block';
+      if (textId) document.getElementById(textId).innerHTML = '✓ Imagem selecionada';
+    };
+    reader.readAsDataURL(file);
+  }
+
+  /* ── TAGS INPUT (admin) ── */
+  function handleTagInput(e) {
+    if (e.key === 'Enter' || e.key === ',') {
+      e.preventDefault();
+      const val = e.target.value.trim().replace(/,/g, '');
+      if (val && !currentTags.includes(val)) {
+        currentTags.push(val);
+        renderTagChips();
+      }
+      e.target.value = '';
+    } else if (e.key === 'Backspace' && e.target.value === '' && currentTags.length) {
+      currentTags.pop();
+      renderTagChips();
+    }
+  }
+  function removeTag(tag) {
+    currentTags = currentTags.filter(t => t !== tag);
+    renderTagChips();
+  }
+  function renderTagChips() {
+    const wrap = document.getElementById('tagsInputWrap');
+    const input = document.getElementById('tagInput');
+    wrap.innerHTML = '';
+    currentTags.forEach(t => {
+      const chip = document.createElement('span');
+      chip.className = 'tag-chip';
+      chip.innerHTML = `${t}<button onclick="removeTag('${t}')" type="button">×</button>`;
+      wrap.appendChild(chip);
+    });
+    wrap.appendChild(input);
+    input.focus();
+  }
+
+  /* ── CLOUDINARY UPLOAD ── */
+  const CLOUDINARY_CLOUD  = 'dufywhkji';
+  const CLOUDINARY_PRESET = 'geoOlympics_unsigned';
+
+  async function uploadToCloudinary(file) {
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('upload_preset', CLOUDINARY_PRESET);
+    const res  = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD}/image/upload`, {
+      method: 'POST', body: formData
+    });
+    const data = await res.json();
+    if (!data.secure_url) throw new Error('Cloudinary upload falhou: ' + JSON.stringify(data));
+    return data.secure_url;
+  }
+
+  /* ── SAVE / UPDATE ── */
+  async function saveExercise() {
+    const title   = document.getElementById('exTitle').value.trim();
+    const level   = document.getElementById('exLevel').value;
+    const desc    = document.getElementById('exDesc').value.trim();
+    const exFile  = document.getElementById('exImg').files[0];
+    const solFile = document.getElementById('solImg').files[0];
+    if (!title) { alert('Preencha o título do exercício.'); return; }
+
+    const btn = document.getElementById('saveBtn');
+    btn.disabled = true;
+    document.getElementById('saveBtnText').textContent = 'Salvando…';
+
+    try {
+      // faz upload para Cloudinary e salva só a URL no Firestore
+      let exImg  = editingExImg  || null;
+      let solImg = editingSolImg || null;
+      if (exFile)  exImg  = await uploadToCloudinary(exFile);
+      if (solFile) solImg = await uploadToCloudinary(solFile);
+
+      const data = { title, level, desc, tags: currentTags, exImg, solImg };
+
+      if (editingId !== null) {
+        await saveToFirebase(data, editingId);
+        const idx = exercises.findIndex(e => e.id === editingId);
+        if (idx !== -1) exercises[idx] = { id: editingId, ...data };
+        showToast('✏️ Exercício atualizado com sucesso!');
+      } else {
+        const newId = await saveToFirebase(data);
+        exercises.push({ id: newId, ...data });
+        showToast('✓ Exercício salvo com sucesso!');
+      }
+
+      cancelEdit();
+      renderAdmin();
+      switchTab('list', document.getElementById('tabList'));
+    } catch(e) {
+      console.error(e);
+      showToast('❌ Erro ao salvar. Verifique o Firebase.');
+    }
+
+    btn.disabled = false;
+    document.getElementById('saveBtnText').textContent = editingId ? 'Atualizar Exercício' : 'Salvar Exercício';
+  }
+
+  /* ── EDIT ── */
+  function editExercise(id) {
+    const ex = exercises.find(e => e.id === id);
+    if (!ex) return;
+    editingId    = id;
+    editingExImg  = ex.exImg  || null;
+    editingSolImg = ex.solImg || null;
+
+    document.getElementById('exTitle').value = ex.title;
+    document.getElementById('exLevel').value = ex.level;
+    document.getElementById('exDesc').value  = ex.desc || '';
+
+    currentTags = ex.tags ? [...ex.tags] : [];
+    renderTagChips();
+
+    const setPrev = (imgId, textId, src, label) => {
+      if (src) {
+        const img = document.getElementById(imgId);
+        img.src = src; img.style.display = 'block';
+        document.getElementById(textId).innerHTML = label;
+      }
+    };
+    setPrev('prevEx',  'exImgText',  ex.exImg,  '✓ Imagem atual (substitua se desejar)');
+    setPrev('prevSol', 'solImgText', ex.solImg, '✓ Imagem atual (substitua se desejar)');
+
+    document.getElementById('formTitle').textContent    = 'Editar Exercício';
+    document.getElementById('saveBtnIcon').textContent  = '✏️';
+    document.getElementById('saveBtnText').textContent  = 'Atualizar Exercício';
+    document.getElementById('editBanner').style.display    = 'block';
+    document.getElementById('cancelEditBtn').style.display = 'inline-flex';
+
+    switchTab('add', document.getElementById('tabAdd'));
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function cancelEdit() {
+    editingId     = null;
+    editingExImg  = null;
+    editingSolImg = null;
+    currentTags   = [];
+    clearForm();
+    document.getElementById('formTitle').textContent    = 'Cadastrar Novo Exercício';
+    document.getElementById('saveBtnIcon').textContent  = '💾';
+    document.getElementById('saveBtnText').textContent  = 'Salvar Exercício';
+    document.getElementById('editBanner').style.display    = 'none';
+    document.getElementById('cancelEditBtn').style.display = 'none';
+    renderTagChips();
+  }
+
+  /* ── DELETE ── */
+  async function deleteExercise(id) {
+    if (!confirm('Deseja remover este exercício permanentemente?')) return;
+    try {
+      await deleteFromFirebase(id);
+      exercises = exercises.filter(e => e.id !== id);
+      if (editingId === id) cancelEdit();
+      showToast('🗑 Exercício removido.');
+      renderAdmin();
+    } catch(e) {
+      showToast('❌ Erro ao remover exercício.');
+    }
+  }
+
+  function clearForm() {
+    ['exTitle','exDesc'].forEach(id => document.getElementById(id).value = '');
+    document.getElementById('exLevel').value = 'Médio';
+    ['exImg','solImg'].forEach(id => document.getElementById(id).value = '');
+    ['prevEx','prevSol'].forEach(id => { const img = document.getElementById(id); img.src = ''; img.style.display = 'none'; });
+    document.getElementById('exImgText').innerHTML  = 'Clique para selecionar<br /><small>PNG, JPG, WEBP</small>';
+    document.getElementById('solImgText').innerHTML = 'Clique para selecionar<br /><small>PNG, JPG, WEBP</small>';
+  }
+
+  /* ── TOAST ── */
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.style.display = 'block';
+    setTimeout(() => t.style.display = 'none', 2700);
+  }
+
+  /* ── TABS ── */
+  function switchTab(name, btn) {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    document.querySelectorAll('.admin-panel').forEach(p => p.classList.remove('active'));
+    document.getElementById('panel-' + name).classList.add('active');
+  }
+
+  /* ── HELPERS ── */
+  function levelClass(l) { return l === 'Fácil' ? 'level-easy' : l === 'Médio' ? 'level-med' : 'level-hard'; }
+
+  /* ── TAGS BAR (student) ── */
+  function renderTagsBar() {
+    const allTags = [...new Set(exercises.flatMap(e => e.tags || []))].sort();
+    const bar = document.getElementById('tagsBar');
+    if (!allTags.length) { bar.innerHTML = ''; return; }
+    bar.innerHTML = `
+      <span class="filter-label">Tags:</span>
+      <button class="tag-btn active" onclick="filterTag('', this)">Todas</button>
+      ${allTags.map(t => `<button class="tag-btn" onclick="filterTag('${t}', this)">${t}</button>`).join('')}
+    `;
+  }
+
+  function filterTag(tag, btn) {
+    document.querySelectorAll('.tag-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    activeTag = tag;
+    renderExercises();
+  }
+
+  /* ── ACORDEÃO ── */
+  function toggleRow(id) {
+    const row = document.getElementById('row-' + id);
+    const isOpen = row.classList.contains('open');
+    document.querySelectorAll('.ex-row.open').forEach(r => r.classList.remove('open'));
+    if (!isOpen) row.classList.add('open');
+  }
+
+  /* ── SOLUÇÃO ── */
+  function buildLockedHTML(id) {
+    return `<div class="sol-locked" onclick="revealSolution('${id}', event)">
+      <div class="sol-lock-icon">🔒</div>
+      <div class="sol-lock-text">Solução oculta</div>
+      <div class="sol-lock-hint">Clique para revelar</div>
+    </div>`;
+  }
+
+  function revealSolution(id, event) {
+    event.stopPropagation();
+    const ex = exercises.find(e => e.id === id);
+    if (!ex || !ex.solImg) return;
+    const c = document.getElementById('solContainer-' + id);
+    c.innerHTML = `<div class="sol-revealed">
+      <span class="sol-badge">Resolução</span>
+      <div class="ex-img-thumb" onclick="openLightbox('${ex.solImg}', 'Resolução — ${ex.title.replace(/'/g,"\\'")}')">
+        <img src="${ex.solImg}" alt="solução" />
+        <div class="zoom-overlay"><span>🔍 Ampliar</span></div>
+      </div>
+    </div>
+    <button class="sol-hide-btn" onclick="hideSolution('${id}', event)">🙈 Ocultar solução</button>`;
+  }
+
+  function hideSolution(id, event) {
+    event.stopPropagation();
+    document.getElementById('solContainer-' + id).innerHTML = buildLockedHTML(id);
+  }
+
+  /* ── RENDER STUDENT ── */
+  function renderExercises(filter, search) {
+    filter = filter !== undefined ? filter : activeFilter;
+    search = search !== undefined ? search : activeSearch;
+    activeFilter = filter;
+    activeSearch = search;
+
+    let list = [...exercises];
+    if (filter && filter !== 'todos') list = list.filter(e => e.level === filter);
+    if (activeTag) list = list.filter(e => (e.tags || []).includes(activeTag));
+    if (search) list = list.filter(e =>
+      e.title.toLowerCase().includes(search.toLowerCase()) ||
+      (e.desc || '').toLowerCase().includes(search.toLowerCase()) ||
+      (e.tags || []).some(t => t.toLowerCase().includes(search.toLowerCase()))
+    );
+
+    document.getElementById('exCount').textContent = list.length + ' exercício' + (list.length !== 1 ? 's' : '');
+
+    const container = document.getElementById('exercisesList');
+    if (!list.length) {
+      container.innerHTML = `<div class="empty-state"><div class="empty-geo">△○□</div><p>Nenhum exercício encontrado</p></div>`;
+      return;
+    }
+
+    container.innerHTML = list.map((ex, i) => `
+      <div class="ex-row" id="row-${ex.id}">
+        <div class="ex-row-header" onclick="toggleRow('${ex.id}')">
+          <span class="ex-row-num">Exercício ${String(i + 1).padStart(2, '0')}</span>
+          <span class="ex-row-title">${ex.title}</span>
+          <span class="ex-row-tags">${(ex.tags || []).map(t => `<span class="ex-row-tag">${t}</span>`).join('')}</span>
+          <span class="ex-row-level ${levelClass(ex.level)}">${ex.level}</span>
+          <span class="ex-row-chevron">▶</span>
+        </div>
+        <div class="ex-row-body">
+          ${ex.desc ? `<div class="ex-body-desc">${ex.desc}</div>` : ''}
+          <div class="ex-images-row">
+            <div class="ex-img-block">
+              <label>Exercício</label>
+              ${ex.exImg
+                ? `<div class="ex-img-thumb" onclick="openLightbox('${ex.exImg}', 'Exercício — ${ex.title.replace(/'/g,"\\'")}')">
+                    <img src="${ex.exImg}" alt="exercício" />
+                    <div class="zoom-overlay"><span>🔍 Ampliar</span></div>
+                  </div>`
+                : `<div class="ex-img-empty">
+                    <svg width="36" height="36" viewBox="0 0 48 48" fill="none">
+                      <polygon points="24,4 44,44 4,44" stroke="currentColor" stroke-width="1.5" fill="none"/>
+                      <circle cx="24" cy="29" r="7" stroke="currentColor" stroke-width="1.5" fill="none"/>
+                    </svg>
+                    <span>Imagem não cadastrada</span>
+                  </div>`
+              }
+            </div>
+            <div class="ex-img-block">
+              <label>Solução</label>
+              <div id="solContainer-${ex.id}">
+                ${ex.solImg
+                  ? buildLockedHTML(ex.id)
+                  : `<div class="ex-img-empty">
+                      <svg width="36" height="36" viewBox="0 0 48 48" fill="none">
+                        <circle cx="24" cy="24" r="18" stroke="currentColor" stroke-width="1.5" fill="none"/>
+                        <line x1="24" y1="15" x2="24" y2="27" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                        <circle cx="24" cy="33" r="1.5" fill="currentColor" opacity="0.4"/>
+                      </svg>
+                      <span>Sem solução cadastrada</span>
+                    </div>`
+                }
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  function filterExercises(f, btn) {
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    renderExercises(f, activeSearch);
+  }
+  function searchExercises(v) { renderExercises(activeFilter, v); }
+
+  /* ── RENDER ADMIN ── */
+  function renderAdmin() {
+    const withSol = exercises.filter(e => e.solImg).length;
+    const hard    = exercises.filter(e => e.level === 'Difícil').length;
+    document.getElementById('statRow').innerHTML = `
+      <div class="stat-card"><div class="stat-val">${exercises.length}</div><div class="stat-label">Total de Exercícios</div></div>
+      <div class="stat-card"><div class="stat-val">${withSol}</div><div class="stat-label">Com Solução</div></div>
+      <div class="stat-card"><div class="stat-val">${hard}</div><div class="stat-label">Nível Difícil</div></div>`;
+
+    const list = document.getElementById('adminList');
+    if (!exercises.length) {
+      list.innerHTML = `<div class="empty-state"><div class="empty-geo">△</div><p>Nenhum exercício cadastrado ainda.<br>Use a aba "Novo Exercício" para começar.</p></div>`;
+      return;
+    }
+    list.innerHTML = exercises.map(ex => `
+      <div class="admin-item">
+        <div class="admin-item-thumb">
+          ${ex.exImg ? `<img src="${ex.exImg}" alt="" />` : '📐'}
+        </div>
+        <div class="admin-item-info">
+          <strong>${ex.title}</strong>
+          <span>${ex.level}${ex.tags && ex.tags.length ? ' · ' + ex.tags.join(', ') : ''}${ex.solImg ? ' · com solução' : ' · sem solução'}</span>
+        </div>
+        <div class="admin-item-actions">
+          <button class="btn-icon edit"   onclick="editExercise('${ex.id}')"   title="Editar">✏️</button>
+          <button class="btn-icon danger" onclick="deleteExercise('${ex.id}')" title="Excluir">🗑</button>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  /* ── INIT ── */
+  renderExercises();
+
+  /* ══ PWA ══ */
+  let _deferredPrompt = null;
+
+  // Registra o Service Worker
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('/geoolympics/sw.js').catch(err => console.warn('SW error:', err));
+    });
+  }
+
+  // Captura o evento de instalação
+  window.addEventListener('beforeinstallprompt', e => {
+    e.preventDefault();
+    _deferredPrompt = e;
+    // Só mostra o banner se o usuário ainda não dispensou
+    if (!sessionStorage.getItem('geo_install_dismissed')) {
+      document.getElementById('installBanner').classList.add('visible');
+    }
+  });
+
+  // App instalado — esconde banner
+  window.addEventListener('appinstalled', () => {
+    document.getElementById('installBanner').classList.remove('visible');
+    _deferredPrompt = null;
+    showToast('✅ GeoOlympics instalado com sucesso!');
+  });
+
+  async function pwaInstall() {
+    if (!_deferredPrompt) return;
+    _deferredPrompt.prompt();
+    const { outcome } = await _deferredPrompt.userChoice;
+    if (outcome === 'accepted') {
+      document.getElementById('installBanner').classList.remove('visible');
+    }
+    _deferredPrompt = null;
+  }
+
+  function pwaDismiss() {
+    document.getElementById('installBanner').classList.remove('visible');
+    sessionStorage.setItem('geo_install_dismissed', '1');
+  }
+</script>
+</body>
+</html>
