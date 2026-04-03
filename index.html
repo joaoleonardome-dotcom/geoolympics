@@ -845,7 +845,6 @@
     document.getElementById('adminModal').style.display = 'flex';
     document.getElementById('adminPass').value = '';
     document.getElementById('modalError').style.display = 'none';
-    document.getElementById('loginAttempts').style.display = 'none';
     setTimeout(() => document.getElementById('adminPass').focus(), 120);
   }
   function closeAdminModal() { document.getElementById('adminModal').style.display = 'none'; }
@@ -1022,16 +1021,16 @@
         showToast('✓ Exercício salvo com sucesso!');
       }
 
-      cancelEdit();
       renderAdmin();
       switchTab('list', document.getElementById('tabList'));
+      cancelEdit();
     } catch(e) {
       console.error(e);
       showToast('❌ Erro ao salvar. Verifique o Firebase.');
     }
 
     btn.disabled = false;
-    document.getElementById('saveBtnText').textContent = editingId ? 'Atualizar Exercício' : 'Salvar Exercício';
+    document.getElementById('saveBtnText').textContent = 'Salvar Exercício';
   }
 
   /* ── EDIT ── */
@@ -1175,7 +1174,7 @@
     const c = document.getElementById('solContainer-' + id);
     c.innerHTML = `<div class="sol-revealed">
       <span class="sol-badge">Resolução</span>
-      <div class="ex-img-thumb" onclick="openLightbox('${ex.solImg}', 'Resolução — ${ex.title.replace(/'/g,"\\'")}')">
+      <div class="ex-img-thumb" onclick="openLightbox('${ex.solImg}', 'Resolução')">
         <img src="${ex.solImg}" alt="solução" />
         <div class="zoom-overlay"><span>🔍 Ampliar</span></div>
       </div>
@@ -1326,10 +1325,17 @@
     document.getElementById('printArea').style.display = 'flex';
     document.getElementById('printArea').style.flexDirection = 'column';
 
-    setTimeout(() => {
+    const printImg = document.querySelector('#printArea .print-img');
+    function doPrint() {
       window.print();
       document.getElementById('printArea').style.display = 'none';
-    }, 300);
+    }
+    if (printImg) {
+      if (printImg.complete) { setTimeout(doPrint, 200); }
+      else { printImg.onload = () => setTimeout(doPrint, 200); printImg.onerror = () => setTimeout(doPrint, 200); }
+    } else {
+      setTimeout(doPrint, 200);
+    }
   }
 
   /* ── INIT ── */
@@ -1371,12 +1377,12 @@
     // Fonte
     const fs = localStorage.getItem('geo_fontsize') || 'medium';
     document.querySelectorAll('.cfg-font-btn').forEach(b => b.classList.remove('active'));
-    document.querySelectorAll('.cfg-font-btn').forEach(b => { if (b.onclick.toString().includes(fs)) b.classList.add('active'); });
+    document.querySelectorAll('.cfg-font-btn').forEach(b => { if (b.getAttribute('onclick') && b.getAttribute('onclick').includes("'" + fs + "'")) b.classList.add('active'); });
 
     // Radius
     const rd = localStorage.getItem('geo_radius') || 'medium';
     document.querySelectorAll('.cfg-radius-btn').forEach(b => b.classList.remove('active'));
-    document.querySelectorAll('.cfg-radius-btn').forEach(b => { if (b.onclick.toString().includes(rd)) b.classList.add('active'); });
+    document.querySelectorAll('.cfg-radius-btn').forEach(b => { if (b.getAttribute('onclick') && b.getAttribute('onclick').includes("'" + rd + "'")) b.classList.add('active'); });
 
     // Textos
     document.getElementById('cfgSubtitle').value    = localStorage.getItem('geo_subtitle')     || 'Geometria Olímpica';
@@ -1394,19 +1400,18 @@
     document.documentElement.style.fontSize = map[size];
     localStorage.setItem('geo_fontsize', size);
     document.querySelectorAll('.cfg-font-btn').forEach(b => b.classList.remove('active'));
-    event.currentTarget.classList.add('active');
+    document.querySelectorAll('.cfg-font-btn').forEach(b => { if (b.getAttribute('onclick') && b.getAttribute('onclick').includes("'" + size + "'")) b.classList.add('active'); });
   }
 
   function setRadius(mode) {
     const map = { sharp: '4px', medium: '14px', round: '28px' };
     document.documentElement.style.setProperty('--card-radius', map[mode]);
-    // aplica em cards
     document.querySelectorAll('.form-card, .entry-card, .stat-card, .admin-item, .ex-row').forEach(el => {
       el.style.borderRadius = map[mode];
     });
     localStorage.setItem('geo_radius', mode);
     document.querySelectorAll('.cfg-radius-btn').forEach(b => b.classList.remove('active'));
-    event.currentTarget.classList.add('active');
+    document.querySelectorAll('.cfg-radius-btn').forEach(b => { if (b.getAttribute('onclick') && b.getAttribute('onclick').includes("'" + mode + "'")) b.classList.add('active'); });
   }
 
   function savePassword() {
