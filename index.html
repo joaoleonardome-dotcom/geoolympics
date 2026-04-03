@@ -230,7 +230,28 @@
     @keyframes spin { to { transform: rotate(360deg); } }
     .loading-text { font-size: 0.82rem; color: var(--text-muted); }
 
-    /* ══ STUDENT VIEW ══ */
+    /* ══ STUDENT 3-COLUMN LAYOUT ══ */
+    .student-outer { display: grid; grid-template-columns: 220px 1fr 240px; gap: 1.4rem; padding: 1.8rem; max-width: 1500px; margin: 0 auto; align-items: start; }
+    @media (max-width: 1100px) { .student-outer { grid-template-columns: 200px 1fr; } .student-col-right { display: none; } }
+    @media (max-width: 760px)  { .student-outer { grid-template-columns: 1fr; padding: 1rem; } .student-col-left, .student-col-right { display: none; } }
+
+    .student-col-left  { position: sticky; top: 80px; display: flex; flex-direction: column; gap: 1rem; }
+    .student-col-center { min-width: 0; }
+    .student-col-right { position: sticky; top: 80px; display: flex; flex-direction: column; gap: 1rem; }
+
+    .stu-search-bar { margin-bottom: 1.2rem; }
+    .stu-filter-btn {
+      display: flex; align-items: center; justify-content: space-between;
+      width: 100%; padding: 0.55rem 0.8rem; border-radius: 10px; border: none;
+      background: transparent; font-family: 'DM Sans', sans-serif; font-size: 0.84rem;
+      color: var(--text-muted); cursor: pointer; transition: all 0.2s; text-align: left;
+    }
+    .stu-filter-btn:hover  { background: var(--lavender-light); color: var(--text); }
+    .stu-filter-btn.active { background: var(--lavender-light); color: var(--lavender-dark); font-weight: 500; }
+    .stu-filter-count { background: var(--border); border-radius: 20px; padding: 1px 8px; font-size: 0.7rem; color: var(--text-muted); }
+    .stu-filter-btn.active .stu-filter-count { background: var(--lavender-dark); color: #fff; }
+
+    /* ══ STUDENT VIEW (legado, mantido para compatibilidade) ══ */
     .student-view { padding: 1.8rem; max-width: 900px; margin: 0 auto; }
 
     .filter-bar { display: flex; gap: 0.6rem; flex-wrap: wrap; align-items: center; margin-bottom: 1rem; }
@@ -306,7 +327,62 @@
     .sol-hide-btn:hover { color: var(--text); }
 
     /* ══ ADMIN VIEW ══ */
-    .admin-view { padding: 1.8rem; max-width: 960px; margin: 0 auto; }
+    .admin-view { padding: 1.8rem; max-width: 1600px; margin: 0 auto; }
+
+    /* ── 3-COLUMN LAYOUT ── */
+    .admin-layout { display: grid; grid-template-columns: 240px 1fr 260px; gap: 1.4rem; align-items: start; }
+    @media (max-width: 1100px) { .admin-layout { grid-template-columns: 200px 1fr; } .admin-col-right { display: none; } }
+    @media (max-width: 760px)  { .admin-layout { grid-template-columns: 1fr; } .admin-col-left, .admin-col-right { display: none; } }
+
+    /* ── SIDEBAR LEFT ── */
+    .admin-col-left { position: sticky; top: 80px; display: flex; flex-direction: column; gap: 1rem; }
+    .sidebar-card { background: var(--card-bg); border-radius: 16px; border: 1px solid var(--border); padding: 1.2rem; }
+    .sidebar-card h5 { font-family: 'Playfair Display', serif; font-size: 0.88rem; font-weight: 600; color: var(--text); margin-bottom: 1rem; padding-bottom: 0.6rem; border-bottom: 1px solid var(--border); }
+
+    .sidebar-nav-btn { display: flex; align-items: center; gap: 0.7rem; width: 100%; padding: 0.6rem 0.8rem; border-radius: 10px; border: none; background: transparent; font-family: 'DM Sans', sans-serif; font-size: 0.84rem; color: var(--text-muted); cursor: pointer; transition: all 0.2s; text-align: left; }
+    .sidebar-nav-btn:hover   { background: var(--lavender-light); color: var(--text); }
+    .sidebar-nav-btn.active  { background: var(--lavender-light); color: var(--lavender-dark); font-weight: 500; }
+    .sidebar-nav-btn .nav-icon { font-size: 1rem; width: 20px; text-align: center; flex-shrink: 0; }
+    .sidebar-nav-btn .nav-badge { margin-left: auto; background: var(--lavender-dark); color: #fff; font-size: 0.65rem; padding: 1px 7px; border-radius: 20px; font-weight: 600; }
+
+    .sidebar-stat-item { display: flex; align-items: center; justify-content: space-between; padding: 0.45rem 0; border-bottom: 1px solid var(--border); }
+    .sidebar-stat-item:last-child { border-bottom: none; }
+    .sidebar-stat-label { font-size: 0.78rem; color: var(--text-muted); }
+    .sidebar-stat-value { font-family: 'Playfair Display', serif; font-size: 1rem; font-weight: 600; color: var(--text); }
+
+    .sidebar-tag-list { display: flex; flex-direction: column; gap: 0.35rem; }
+    .sidebar-tag-item { display: flex; align-items: center; gap: 0.5rem; font-size: 0.78rem; color: var(--text); }
+    .sidebar-tag-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--sky); flex-shrink: 0; }
+    .sidebar-tag-bar-wrap { flex: 1; background: var(--border); border-radius: 99px; height: 4px; overflow: hidden; }
+    .sidebar-tag-bar { height: 100%; background: var(--sky); border-radius: 99px; transition: width 0.5s; }
+    .sidebar-tag-count { color: var(--text-muted); min-width: 16px; text-align: right; font-size: 0.72rem; }
+
+    /* ── SIDEBAR RIGHT ── */
+    .admin-col-right { position: sticky; top: 80px; display: flex; flex-direction: column; gap: 1rem; }
+
+    .log-item { display: flex; gap: 0.7rem; align-items: flex-start; padding: 0.6rem 0; border-bottom: 1px solid var(--border); }
+    .log-item:last-child { border-bottom: none; }
+    .log-dot { width: 8px; height: 8px; border-radius: 50%; margin-top: 5px; flex-shrink: 0; }
+    .log-dot.add  { background: var(--sage-dark); }
+    .log-dot.edit { background: var(--lavender-dark); }
+    .log-dot.del  { background: #C0514F; }
+    .log-info { flex: 1; min-width: 0; }
+    .log-title { font-size: 0.78rem; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: 500; }
+    .log-time  { font-size: 0.7rem; color: var(--text-muted); margin-top: 1px; }
+
+    /* donut chart */
+    .donut-wrap { display: flex; align-items: center; gap: 1rem; }
+    .donut-legend { display: flex; flex-direction: column; gap: 0.45rem; flex: 1; }
+    .donut-legend-item { display: flex; align-items: center; gap: 0.5rem; font-size: 0.78rem; color: var(--text); }
+    .donut-legend-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+    .donut-legend-pct { margin-left: auto; color: var(--text-muted); font-size: 0.72rem; }
+
+    /* random exercise card */
+    .random-ex-card { background: var(--lavender-light); border-radius: 12px; padding: 1rem; margin-top: 0.5rem; }
+    .random-ex-title { font-family: 'Playfair Display', serif; font-size: 0.88rem; font-weight: 600; color: var(--text); margin-bottom: 0.3rem; }
+    .random-ex-meta  { font-size: 0.72rem; color: var(--text-muted); margin-bottom: 0.8rem; }
+    .btn-random { width: 100%; padding: 0.55rem; border-radius: 10px; border: none; background: var(--lavender-dark); color: #fff; font-family: 'DM Sans', sans-serif; font-size: 0.8rem; font-weight: 500; cursor: pointer; transition: background 0.2s; }
+    .btn-random:hover { background: #6a62a8; }
 
     .stat-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-bottom: 1.8rem; }
     .stat-card { background: var(--card-bg); border-radius: 14px; border: 1px solid var(--border); padding: 1.2rem; align-self: start; }
@@ -558,26 +634,95 @@
       <button class="btn-back" onclick="goHome()">← Início</button>
     </div>
   </div>
-  <div class="student-view">
+  <div class="student-outer">
 
-    <!-- filtros de nível -->
-    <div class="filter-bar">
-      <span class="filter-label">Nível:</span>
-      <button class="filter-btn active" onclick="filterExercises('todos', this)">Todos</button>
-      <button class="filter-btn" onclick="filterExercises('Fácil', this)">Fácil</button>
-      <button class="filter-btn" onclick="filterExercises('Médio', this)">Médio</button>
-      <button class="filter-btn" onclick="filterExercises('Difícil', this)">Difícil</button>
-      <input class="filter-input" id="searchInput" placeholder="🔍  Buscar exercício…" oninput="searchExercises(this.value)" />
+    <!-- ══ SIDEBAR ESQUERDA (aluno) ══ -->
+    <aside class="student-col-left">
+
+      <!-- Filtros de nível -->
+      <div class="sidebar-card">
+        <h5>🎯 Nível</h5>
+        <div style="display:flex;flex-direction:column;gap:0.3rem;">
+          <button class="stu-filter-btn active" onclick="filterExercises('todos', this)" data-level="todos">Todos <span class="stu-filter-count" id="scTotal">—</span></button>
+          <button class="stu-filter-btn" onclick="filterExercises('Fácil', this)" data-level="Fácil">🟢 Fácil <span class="stu-filter-count" id="scEasy">—</span></button>
+          <button class="stu-filter-btn" onclick="filterExercises('Médio', this)" data-level="Médio">🟡 Médio <span class="stu-filter-count" id="scMed">—</span></button>
+          <button class="stu-filter-btn" onclick="filterExercises('Difícil', this)" data-level="Difícil">🔴 Difícil <span class="stu-filter-count" id="scHard">—</span></button>
+        </div>
+      </div>
+
+      <!-- Tags -->
+      <div class="sidebar-card">
+        <h5>🏷️ Tags</h5>
+        <div class="sidebar-tag-list" id="stuTagList">
+          <span style="font-size:0.78rem;color:var(--text-muted);">Carregando…</span>
+        </div>
+      </div>
+
+      <!-- Estatísticas -->
+      <div class="sidebar-card">
+        <h5>📊 Acervo</h5>
+        <div class="sidebar-stat-item"><span class="sidebar-stat-label">Total</span><span class="sidebar-stat-value" id="stuTotal">—</span></div>
+        <div class="sidebar-stat-item"><span class="sidebar-stat-label">Com solução</span><span class="sidebar-stat-value" id="stuSol">—</span></div>
+        <div class="sidebar-stat-item"><span class="sidebar-stat-label">Com dicas</span><span class="sidebar-stat-value" id="stuHints">—</span></div>
+        <!-- mini donut -->
+        <div class="donut-wrap" style="margin-top:1rem;">
+          <svg id="stuDonutChart" width="72" height="72" viewBox="0 0 84 84" style="flex-shrink:0;">
+            <circle cx="42" cy="42" r="32" fill="none" stroke="var(--border)" stroke-width="14"/>
+            <circle id="stuDonutFacil"   cx="42" cy="42" r="32" fill="none" stroke="var(--sage-dark)"     stroke-width="14" stroke-dasharray="0 201" stroke-dashoffset="0" transform="rotate(-90 42 42)" style="transition:stroke-dasharray 0.6s;"/>
+            <circle id="stuDonutMedio"   cx="42" cy="42" r="32" fill="none" stroke="var(--peach-dark)"    stroke-width="14" stroke-dasharray="0 201" stroke-dashoffset="0" transform="rotate(-90 42 42)" style="transition:stroke-dasharray 0.6s;"/>
+            <circle id="stuDonutDificil" cx="42" cy="42" r="32" fill="none" stroke="var(--lavender-dark)" stroke-width="14" stroke-dasharray="0 201" stroke-dashoffset="0" transform="rotate(-90 42 42)" style="transition:stroke-dasharray 0.6s;"/>
+            <text x="42" y="46" text-anchor="middle" font-family="Playfair Display,serif" font-size="13" font-weight="700" fill="var(--text)" id="stuDonutCenter">0</text>
+          </svg>
+          <div class="donut-legend">
+            <div class="donut-legend-item"><span class="donut-legend-dot" style="background:var(--sage-dark)"></span>Fácil<span class="donut-legend-pct" id="stuPctF">0%</span></div>
+            <div class="donut-legend-item"><span class="donut-legend-dot" style="background:var(--peach-dark)"></span>Médio<span class="donut-legend-pct" id="stuPctM">0%</span></div>
+            <div class="donut-legend-item"><span class="donut-legend-dot" style="background:var(--lavender-dark)"></span>Difícil<span class="donut-legend-pct" id="stuPctD">0%</span></div>
+          </div>
+        </div>
+      </div>
+
+    </aside>
+
+    <!-- ══ COLUNA CENTRAL (lista) ══ -->
+    <div class="student-col-center">
+      <!-- Busca -->
+      <div class="stu-search-bar">
+        <input class="filter-input" style="width:100%;margin:0;" id="searchInput" placeholder="🔍  Buscar exercício…" oninput="searchExercises(this.value)" />
+      </div>
+
+      <div class="section-header">
+        <span class="section-title">Exercícios</span>
+        <span class="section-count" id="exCount"></span>
+      </div>
+      <div class="exercises-list" id="exercisesList"></div>
     </div>
 
-    <!-- filtros por tag -->
-    <div class="tags-bar" id="tagsBar"></div>
+    <!-- ══ SIDEBAR DIREITA (exercício aleatório) ══ -->
+    <aside class="student-col-right">
 
-    <div class="section-header">
-      <span class="section-title">Exercícios</span>
-      <span class="section-count" id="exCount"></span>
-    </div>
-    <div class="exercises-list" id="exercisesList"></div>
+      <div class="sidebar-card">
+        <h5>🎲 Exercício Aleatório</h5>
+        <div id="stuRandomCard">
+          <div class="random-ex-card" style="cursor:pointer;" onclick="openRandomExercise()" title="Clique para abrir">
+            <div style="font-size:0.66rem;color:var(--text-muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:0.35rem;" id="stuRandomNum">—</div>
+            <div class="random-ex-title" id="stuRandomTitle">—</div>
+            <div class="random-ex-meta" id="stuRandomMeta">—</div>
+            <div style="margin-top:0.6rem;font-size:0.72rem;color:var(--lavender-dark);font-weight:500;">▶ Clique para abrir</div>
+          </div>
+          <button class="btn-random" style="margin-top:0.7rem;" onclick="pickStudentRandom()">🔀 Sortear outro</button>
+        </div>
+      </div>
+
+      <!-- Tags mais usadas (direita) -->
+      <div class="sidebar-card">
+        <h5>🔥 Mais exercícios</h5>
+        <div class="sidebar-tag-list" id="stuTagRight">
+          <span style="font-size:0.78rem;color:var(--text-muted);">Carregando…</span>
+        </div>
+      </div>
+
+    </aside>
+
   </div>
 </div>
 
@@ -592,12 +737,56 @@
     </div>
   </div>
   <div class="admin-view">
-    <div class="stat-row" id="statRow"></div>
-    <div class="admin-tabs">
-      <button class="tab-btn active" id="tabAdd"    onclick="switchTab('add',    this)">+ Novo Exercício</button>
-      <button class="tab-btn"        id="tabList"   onclick="switchTab('list',   this)">Gerenciar Acervo</button>
-      <button class="tab-btn"        id="tabConfig" onclick="switchTab('config', this)">⚙️ Configurações</button>
-    </div>
+    <div class="admin-layout">
+
+      <!-- ══ COLUNA ESQUERDA ══ -->
+      <aside class="admin-col-left" id="adminSideLeft">
+        <!-- Navegação -->
+        <div class="sidebar-card">
+          <h5>📌 Navegação</h5>
+          <button class="sidebar-nav-btn active" id="sideNavAdd" onclick="switchTab('add', document.getElementById('tabAdd')); updateSideNav('add')">
+            <span class="nav-icon">✏️</span> Novo Exercício
+          </button>
+          <button class="sidebar-nav-btn" id="sideNavList" onclick="switchTab('list', document.getElementById('tabList')); updateSideNav('list')">
+            <span class="nav-icon">📋</span> Gerenciar Acervo
+            <span class="nav-badge" id="sideNavBadge">0</span>
+          </button>
+          <button class="sidebar-nav-btn" id="sideNavConfig" onclick="switchTab('config', document.getElementById('tabConfig')); updateSideNav('config')">
+            <span class="nav-icon">⚙️</span> Configurações
+          </button>
+        </div>
+
+        <!-- Estatísticas rápidas -->
+        <div class="sidebar-card">
+          <h5>📊 Estatísticas</h5>
+          <div id="sideStats">
+            <div class="sidebar-stat-item"><span class="sidebar-stat-label">Total</span><span class="sidebar-stat-value" id="sideTotal">—</span></div>
+            <div class="sidebar-stat-item"><span class="sidebar-stat-label">Fácil</span><span class="sidebar-stat-value" id="sideEasy" style="color:var(--sage-dark)">—</span></div>
+            <div class="sidebar-stat-item"><span class="sidebar-stat-label">Médio</span><span class="sidebar-stat-value" id="sideMed" style="color:var(--peach-dark)">—</span></div>
+            <div class="sidebar-stat-item"><span class="sidebar-stat-label">Difícil</span><span class="sidebar-stat-value" id="sideHard" style="color:var(--lavender-dark)">—</span></div>
+            <div class="sidebar-stat-item"><span class="sidebar-stat-label">Com solução</span><span class="sidebar-stat-value" id="sideSol">—</span></div>
+            <div class="sidebar-stat-item"><span class="sidebar-stat-label">Com dicas</span><span class="sidebar-stat-value" id="sideHints">—</span></div>
+          </div>
+        </div>
+
+        <!-- Tags -->
+        <div class="sidebar-card">
+          <h5>🏷️ Tags</h5>
+          <div class="sidebar-tag-list" id="sideTagList">
+            <span style="font-size:0.78rem;color:var(--text-muted);">Carregando…</span>
+          </div>
+        </div>
+      </aside>
+
+      <!-- ══ COLUNA CENTRAL ══ -->
+      <div class="admin-col-center">
+        <div class="stat-row" id="statRow"></div>
+        <!-- botões ocultos mantidos para compatibilidade com switchTab() -->
+        <div style="display:none;">
+          <button id="tabAdd"></button>
+          <button id="tabList"></button>
+          <button id="tabConfig"></button>
+        </div>
 
     <!-- PAINEL CADASTRO / EDIÇÃO -->
     <div id="panel-add" class="admin-panel active">
@@ -756,7 +945,42 @@
           <button class="btn-save" style="background:#C0514F;" onclick="resetAllSettings()">↺ Restaurar configurações padrão</button>
         </div>
       </div>
-    </div>
+    </div> <!-- /panel-config -->
+      </div> <!-- /admin-col-center -->
+
+      <!-- ══ COLUNA DIREITA ══ -->
+      <aside class="admin-col-right" id="adminSideRight">
+
+        <!-- Gráfico de Distribuição -->
+        <div class="sidebar-card">
+          <h5>📈 Distribuição</h5>
+          <div class="donut-wrap">
+            <svg id="donutChart" width="84" height="84" viewBox="0 0 84 84" style="flex-shrink:0;">
+              <circle cx="42" cy="42" r="32" fill="none" stroke="var(--border)" stroke-width="14"/>
+              <circle id="donutFacil"  cx="42" cy="42" r="32" fill="none" stroke="var(--sage-dark)"    stroke-width="14" stroke-dasharray="0 201" stroke-dashoffset="0"   transform="rotate(-90 42 42)" style="transition:stroke-dasharray 0.6s;"/>
+              <circle id="donutMedio"  cx="42" cy="42" r="32" fill="none" stroke="var(--peach-dark)"   stroke-width="14" stroke-dasharray="0 201" stroke-dashoffset="0"   transform="rotate(-90 42 42)" style="transition:stroke-dasharray 0.6s;"/>
+              <circle id="donutDificil"cx="42" cy="42" r="32" fill="none" stroke="var(--lavender-dark)" stroke-width="14" stroke-dasharray="0 201" stroke-dashoffset="0" transform="rotate(-90 42 42)" style="transition:stroke-dasharray 0.6s;"/>
+              <text x="42" y="46" text-anchor="middle" font-family="Playfair Display,serif" font-size="14" font-weight="700" fill="var(--text)" id="donutCenter">0</text>
+            </svg>
+            <div class="donut-legend" id="donutLegend">
+              <div class="donut-legend-item"><span class="donut-legend-dot" style="background:var(--sage-dark)"></span>Fácil<span class="donut-legend-pct" id="dpctFacil">0%</span></div>
+              <div class="donut-legend-item"><span class="donut-legend-dot" style="background:var(--peach-dark)"></span>Médio<span class="donut-legend-pct" id="dpctMedio">0%</span></div>
+              <div class="donut-legend-item"><span class="donut-legend-dot" style="background:var(--lavender-dark)"></span>Difícil<span class="donut-legend-pct" id="dpctDificil">0%</span></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Log de Alterações -->
+        <div class="sidebar-card">
+          <h5>🕓 Alterações Recentes</h5>
+          <div id="activityLog">
+            <span style="font-size:0.78rem;color:var(--text-muted);">Nenhuma alteração ainda.</span>
+          </div>
+        </div>
+
+      </aside>
+
+    </div> <!-- /admin-layout -->
   </div>
 </div>
 
@@ -815,7 +1039,106 @@
     window.scrollTo(0, 0);
   }
   function goHome()    { showScreen('landing'); }
-  function goStudent() { renderTagsBar(); renderExercises(); showScreen('studentView'); }
+  function goStudent() { renderStudentSidebar(); renderExercises(); showScreen('studentView'); }
+
+  /* ── STUDENT SIDEBAR ── */
+  let _stuRandomIdx = -1;
+
+  function renderStudentSidebar() {
+    const total = exercises.length;
+    const easy  = exercises.filter(e => e.level === 'Fácil').length;
+    const med   = exercises.filter(e => e.level === 'Médio').length;
+    const hard  = exercises.filter(e => e.level === 'Difícil').length;
+    const sol   = exercises.filter(e => e.solImg).length;
+    const hints = exercises.filter(e => e.hints && e.hints.length).length;
+
+    const set = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
+    set('stuTotal', total); set('stuSol', sol); set('stuHints', hints);
+    set('scTotal', total); set('scEasy', easy); set('scMed', med); set('scHard', hard);
+
+    // Donut aluno
+    const circ = 2 * Math.PI * 32;
+    const pct = n => total ? n / total : 0;
+    const segF = pct(easy)*circ, segM = pct(med)*circ, segD = pct(hard)*circ;
+    let off = 0;
+    function setArcStu(id, seg, offset) {
+      const el = document.getElementById(id);
+      if (!el) return;
+      el.setAttribute('stroke-dasharray', `${seg} ${circ - seg}`);
+      el.setAttribute('stroke-dashoffset', -offset);
+    }
+    setArcStu('stuDonutFacil',   segF, off); off += segF;
+    setArcStu('stuDonutMedio',   segM, off); off += segM;
+    setArcStu('stuDonutDificil', segD, off);
+    set('stuDonutCenter', total);
+    const p = n => total ? Math.round(n/total*100) + '%' : '0%';
+    set('stuPctF', p(easy)); set('stuPctM', p(med)); set('stuPctD', p(hard));
+
+    // Tags sidebar esquerda
+    const tagCount = {};
+    exercises.forEach(e => (e.tags || []).forEach(t => { tagCount[t] = (tagCount[t] || 0) + 1; }));
+    const allTags = Object.entries(tagCount).sort((a,b) => b[1]-a[1]);
+    const stuTagList = document.getElementById('stuTagList');
+    if (stuTagList) {
+      stuTagList.innerHTML = allTags.length
+        ? `<button class="stu-filter-btn active" style="font-size:0.78rem;" onclick="filterTag('', this)">Todas</button>`
+          + allTags.map(([tag, cnt]) => `
+            <button class="stu-filter-btn" style="font-size:0.78rem;" onclick="filterTag('${tag}', this)">${tag}
+              <span class="stu-filter-count">${cnt}</span>
+            </button>`).join('')
+        : '<span style="font-size:0.78rem;color:var(--text-muted);">Nenhuma tag.</span>';
+    }
+
+    // Tags sidebar direita (top 5 com barras)
+    const stuTagRight = document.getElementById('stuTagRight');
+    if (stuTagRight) {
+      stuTagRight.innerHTML = allTags.slice(0, 6).length
+        ? allTags.slice(0, 6).map(([tag, cnt]) => `
+          <div class="sidebar-tag-item" style="cursor:pointer;" onclick="filterTagByName('${tag}')">
+            <span class="sidebar-tag-dot"></span>
+            <span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:0.78rem;">${tag}</span>
+            <div class="sidebar-tag-bar-wrap"><div class="sidebar-tag-bar" style="width:${Math.round(cnt/total*100)}%"></div></div>
+            <span class="sidebar-tag-count">${cnt}</span>
+          </div>`).join('')
+        : '<span style="font-size:0.78rem;color:var(--text-muted);">Nenhuma tag ainda.</span>';
+    }
+
+    // Random inicial
+    if (_stuRandomIdx === -1 && total > 0) pickStudentRandom();
+  }
+
+  function pickStudentRandom() {
+    if (!exercises.length) return;
+    const idx = Math.floor(Math.random() * exercises.length);
+    _stuRandomIdx = idx;
+    const ex = exercises[idx];
+    const num = String(idx + 1).padStart(2, '0');
+    const set = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
+    set('stuRandomNum',   'Exercício ' + num);
+    set('stuRandomTitle', ex.title || ex.desc?.slice(0, 55) || 'Sem título');
+    set('stuRandomMeta',  ex.level + (ex.tags?.length ? ' · ' + ex.tags.slice(0,2).join(', ') : ''));
+  }
+
+  function openRandomExercise() {
+    if (_stuRandomIdx < 0 || _stuRandomIdx >= exercises.length) return;
+    const ex = exercises[_stuRandomIdx];
+    // Fecha qualquer acordeão aberto e abre o sorteado
+    document.querySelectorAll('.ex-row.open').forEach(r => r.classList.remove('open'));
+    const row = document.getElementById('row-' + ex.id);
+    if (row) {
+      row.classList.add('open');
+      setTimeout(() => row.scrollIntoView({ behavior: 'smooth', block: 'center' }), 80);
+    }
+  }
+
+  function filterTagByName(tag) {
+    activeTag = tag;
+    // Atualiza visual dos botões da sidebar esquerda
+    document.querySelectorAll('#stuTagList .stu-filter-btn').forEach(b => {
+      b.classList.toggle('active', b.textContent.trim().startsWith(tag));
+    });
+    renderExercises();
+  }
 
   /* ── FIREBASE: LOAD ── */
   async function loadExercises() {
@@ -1025,10 +1348,12 @@
         const idx = exercises.findIndex(e => e.id === editingId);
         if (idx !== -1) exercises[idx] = { id: editingId, ...data };
         showToast('✏️ Exercício atualizado com sucesso!');
+        logActivity('edit', data.title);
       } else {
         const newId = await saveToFirebase(data);
         exercises.push({ id: newId, ...data });
         showToast('✓ Exercício salvo com sucesso!');
+        logActivity('add', data.title);
       }
 
       renderAdmin();
@@ -1105,6 +1430,8 @@
       await deleteFromFirebase(id);
       exercises = exercises.filter(e => e.id !== id);
       if (editingId === id) cancelEdit();
+      const delEx = exercises.find(e => e.id === id);
+      logActivity('del', delEx?.title || 'Exercício');
       showToast('🗑 Exercício removido.');
       renderAdmin();
     } catch(e) {
@@ -1276,8 +1603,12 @@
   }
 
   function filterExercises(f, btn) {
-    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
+    document.querySelectorAll('.filter-btn, .stu-filter-btn[data-level]').forEach(b => b.classList.remove('active'));
+    if (btn) btn.classList.add('active');
+    // sincroniza o botão irmão (se existir)
+    document.querySelectorAll(`.stu-filter-btn[data-level="${f}"], .filter-btn`).forEach(b => {
+      if (b.getAttribute('data-level') === f || b === btn) b.classList.add('active');
+    });
     renderExercises(f, activeSearch);
   }
   function searchExercises(v) { renderExercises(activeFilter, v); }
@@ -1368,6 +1699,8 @@
         }
       </div>`;
 
+
+    updateSidebar();
 
     const list = document.getElementById('adminList');
     if (!exercises.length) {
@@ -1551,6 +1884,132 @@
     const sdesc = localStorage.getItem('geo_studentdesc');
     if (sdesc) { const el = document.querySelector('.entry-card.student p'); if (el) el.textContent = sdesc; }
 
+  }
+
+  /* ══ SIDEBAR ══ */
+  let _randomIdx = -1;
+  let _activityLog = [];
+
+  function updateSideNav(active) {
+    ['add','list','config'].forEach(k => {
+      const btn = document.getElementById('sideNav' + k.charAt(0).toUpperCase() + k.slice(1));
+      if (btn) btn.classList.toggle('active', k === active);
+    });
+  }
+
+  function updateSidebar() {
+    const total = exercises.length;
+    const easy  = exercises.filter(e => e.level === 'Fácil').length;
+    const med   = exercises.filter(e => e.level === 'Médio').length;
+    const hard  = exercises.filter(e => e.level === 'Difícil').length;
+    const sol   = exercises.filter(e => e.solImg).length;
+    const hints = exercises.filter(e => e.hints && e.hints.length).length;
+
+    const set = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
+    set('sideTotal', total);
+    set('sideEasy',  easy);
+    set('sideMed',   med);
+    set('sideHard',  hard);
+    set('sideSol',   sol);
+    set('sideHints', hints);
+    set('sideNavBadge', total);
+
+    // Tags sidebar
+    const tagCount = {};
+    exercises.forEach(e => (e.tags || []).forEach(t => { tagCount[t] = (tagCount[t] || 0) + 1; }));
+    const topTags = Object.entries(tagCount).sort((a,b) => b[1]-a[1]).slice(0, 8);
+    const tagList = document.getElementById('sideTagList');
+    if (tagList) {
+      tagList.innerHTML = topTags.length
+        ? topTags.map(([tag, cnt]) => `
+          <div class="sidebar-tag-item">
+            <span class="sidebar-tag-dot"></span>
+            <span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${tag}</span>
+            <div class="sidebar-tag-bar-wrap"><div class="sidebar-tag-bar" style="width:${Math.round(cnt/total*100)}%"></div></div>
+            <span class="sidebar-tag-count">${cnt}</span>
+          </div>`).join('')
+        : '<span style="font-size:0.78rem;color:var(--text-muted);">Nenhuma tag ainda.</span>';
+    }
+
+    // Donut
+    updateDonut(easy, med, hard, total);
+
+    // Random
+    if (_randomIdx === -1 && total > 0) pickRandomExercise();
+
+    // Mantém sidebar de aluno sincronizada
+    renderStudentSidebar();
+  }
+
+  function updateDonut(easy, med, hard, total) {
+    const circ = 2 * Math.PI * 32; // ~201
+    const pct = n => total ? n / total : 0;
+    const pF = pct(easy), pM = pct(med), pD = pct(hard);
+
+    const segF = pF * circ, segM = pM * circ, segD = pD * circ;
+    let off = 0;
+
+    function setArc(id, seg, offset) {
+      const el = document.getElementById(id);
+      if (!el) return;
+      el.setAttribute('stroke-dasharray', `${seg} ${circ - seg}`);
+      el.setAttribute('stroke-dashoffset', -offset);
+      el.setAttribute('transform', 'rotate(-90 42 42)');
+    }
+    setArc('donutFacil',   segF, off); off += segF;
+    setArc('donutMedio',   segM, off); off += segM;
+    setArc('donutDificil', segD, off);
+
+    const center = document.getElementById('donutCenter');
+    if (center) center.textContent = total;
+
+    const p = n => total ? Math.round(n/total*100) + '%' : '0%';
+    const set = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
+    set('dpctFacil',   p(easy));
+    set('dpctMedio',   p(med));
+    set('dpctDificil', p(hard));
+  }
+
+  function pickRandomExercise() {
+    if (!exercises.length) return;
+    const idx = Math.floor(Math.random() * exercises.length);
+    _randomIdx = idx;
+    const ex = exercises[idx];
+    const t = document.getElementById('randomTitle');
+    const m = document.getElementById('randomMeta');
+    if (t) t.textContent = ex.title || ex.desc?.slice(0, 50) || 'Sem título';
+    if (m) m.textContent = ex.level + (ex.tags?.length ? ' · ' + ex.tags.slice(0,2).join(', ') : '');
+  }
+
+  function editRandomExercise() {
+    if (_randomIdx < 0 || _randomIdx >= exercises.length) return;
+    editExercise(exercises[_randomIdx].id);
+  }
+
+  function logActivity(type, title) {
+    const now = new Date();
+    const time = now.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+    const label = type === 'add' ? 'Adicionado' : type === 'edit' ? 'Editado' : 'Removido';
+    _activityLog.unshift({ type, title, time, label });
+    if (_activityLog.length > 10) _activityLog.pop();
+    renderActivityLog();
+  }
+
+  function renderActivityLog() {
+    const el = document.getElementById('activityLog');
+    if (!el) return;
+    if (!_activityLog.length) {
+      el.innerHTML = '<span style="font-size:0.78rem;color:var(--text-muted);">Nenhuma alteração ainda.</span>';
+      return;
+    }
+    el.innerHTML = _activityLog.map(e => `
+      <div class="log-item">
+        <div class="log-dot ${e.type}"></div>
+        <div class="log-info">
+          <div class="log-title">${e.label}: ${e.title}</div>
+          <div class="log-time">${e.time}</div>
+        </div>
+      </div>`).join('');
   }
 
   /* ══ PWA ══ */
