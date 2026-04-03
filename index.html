@@ -208,6 +208,7 @@
       .lb-layout { flex-direction: column; align-items: center; overflow-y: auto; }
       .lb-img { max-width: 92vw; }
       .lb-hints-panel { min-width: unset; max-width: 92vw; width: 100%; }
+      .stat-row { grid-template-columns: 1fr; }
     }
 
     /* ══ TOP BAR ══ */
@@ -261,8 +262,9 @@
     .ex-row.open > .ex-row-header { background: var(--lavender-light); }
 
     .ex-row-num   { font-size: 0.75rem; color: var(--text-muted); min-width: 90px; flex-shrink: 0; font-variant-numeric: tabular-nums; }
-    .ex-row-title { font-family: 'Playfair Display', serif; font-size: 1rem; font-weight: 600; color: var(--text); flex: 1; }
-    .ex-row-tags  { display: flex; gap: 0.3rem; flex: 1; flex-wrap: wrap; }
+    .ex-row-title { font-family: 'Playfair Display', serif; font-size: 0.82rem; font-weight: 600; color: var(--text); flex: 1; }
+    .ex-row-meta  { display: flex; align-items: center; gap: 0.3rem; flex-wrap: wrap; flex-shrink: 0; }
+    .ex-row-tags  { display: contents; }
     .ex-row-tag   { font-size: 0.64rem; padding: 2px 8px; border-radius: 20px; background: var(--sky-light); color: var(--text-muted); border: 1px solid var(--border); }
     .ex-row-level { font-size: 0.7rem; padding: 3px 11px; border-radius: 20px; font-weight: 500; flex-shrink: 0; }
     .level-easy { background: var(--sage-light);    color: var(--sage-dark); }
@@ -307,9 +309,9 @@
     .admin-view { padding: 1.8rem; max-width: 960px; margin: 0 auto; }
 
     .stat-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-bottom: 1.8rem; }
-    .stat-card { background: var(--card-bg); border-radius: 14px; border: 1px solid var(--border); padding: 1.2rem; }
+    .stat-card { background: var(--card-bg); border-radius: 14px; border: 1px solid var(--border); padding: 1.2rem; align-self: start; }
     .stat-card .stat-val   { font-family: 'Playfair Display', serif; font-size: 2.2rem; font-weight: 700; color: var(--text); line-height: 1; }
-    .stat-card .stat-label { font-size: 0.75rem; color: var(--text-muted); margin-top: 4px; }
+    .stat-card .stat-label { font-size: 0.75rem; color: var(--text-muted); margin-top: 4px; text-transform: uppercase; letter-spacing: 0.3px; }
 
     .admin-tabs { display: inline-flex; gap: 0.4rem; background: var(--card-bg); border-radius: 14px; padding: 0.4rem; border: 1px solid var(--border); margin-bottom: 1.5rem; }
     .tab-btn { padding: 0.5rem 1.3rem; border-radius: 10px; border: none; background: transparent; font-family: 'DM Sans', sans-serif; font-size: 0.85rem; color: var(--text-muted); cursor: pointer; transition: all 0.2s; }
@@ -602,6 +604,12 @@
       <div class="edit-mode-banner" id="editBanner">✏️ Modo edição — você está alterando um exercício existente</div>
       <div class="form-card">
         <h4 id="formTitle">Cadastrar Novo Exercício</h4>
+        <div class="form-row">
+          <div class="form-group full">
+            <label>Título do Exercício <span style="color:var(--text-muted);font-weight:400;">(opcional — gerado automaticamente se vazio)</span></label>
+            <input type="text" id="exTitle" placeholder="Ex: Ângulos em triângulo isósceles…" />
+          </div>
+        </div>
         <div class="form-row">
           <div class="form-group full">
             <label>Nível de Dificuldade</label>
@@ -986,9 +994,11 @@
 
   /* ── SAVE / UPDATE ── */
   async function saveExercise() {
-    const title   = '';
-    const level   = document.getElementById('exLevel').value;
     const desc    = document.getElementById('exDesc').value.trim();
+    const titleRaw = document.getElementById('exTitle').value.trim();
+    // Se o título estiver vazio, gera automaticamente a partir do enunciado
+    const title   = titleRaw || (desc ? desc.split(/\s+/).slice(0, 6).join(' ') + (desc.split(/\s+/).length > 6 ? '…' : '') : 'Sem título');
+    const level   = document.getElementById('exLevel').value;
     const exFile  = document.getElementById('exImg').files[0];
     const solFile = document.getElementById('solImg').files[0];
 
@@ -1042,6 +1052,7 @@
     editingSolImg = ex.solImg || null;
 
     document.getElementById('exLevel').value = ex.level;
+    document.getElementById('exTitle').value  = ex.title || '';
     document.getElementById('exDesc').value  = ex.desc || '';
 
     currentTags = ex.tags ? [...ex.tags] : [];
@@ -1103,6 +1114,7 @@
 
   function clearForm() {
     document.getElementById('exDesc').value = '';
+    document.getElementById('exTitle').value = '';
     document.getElementById('exLevel').value = 'Médio';
     ['exImg','solImg'].forEach(id => document.getElementById(id).value = '');
     ['prevEx','prevSol'].forEach(id => { const img = document.getElementById(id); img.src = ''; img.style.display = 'none'; });
@@ -1198,6 +1210,7 @@
     if (filter && filter !== 'todos') list = list.filter(e => e.level === filter);
     if (activeTag) list = list.filter(e => (e.tags || []).includes(activeTag));
     if (search) list = list.filter(e =>
+      (e.title || '').toLowerCase().includes(search.toLowerCase()) ||
       (e.desc || '').toLowerCase().includes(search.toLowerCase()) ||
       (e.tags || []).some(t => t.toLowerCase().includes(search.toLowerCase()))
     );
@@ -1214,8 +1227,11 @@
       <div class="ex-row" id="row-${ex.id}">
         <div class="ex-row-header" onclick="toggleRow('${ex.id}')">
           <span class="ex-row-num">Exercício ${String(i + 1).padStart(2, '0')}</span>
-          <span class="ex-row-tags">${(ex.tags || []).map(t => `<span class="ex-row-tag">${t}</span>`).join('')}</span>
-          <span class="ex-row-level ${levelClass(ex.level)}">${ex.level}</span>
+          ${ex.title ? `<span class="ex-row-title">${ex.title}</span>` : ''}
+          <div class="ex-row-meta">
+            ${(ex.tags || []).map(t => `<span class="ex-row-tag">${t}</span>`).join('')}
+            <span class="ex-row-level ${levelClass(ex.level)}">${ex.level}</span>
+          </div>
           <span class="ex-row-chevron">▶</span>
         </div>
         <div class="ex-row-body">
@@ -1269,11 +1285,89 @@
   /* ── RENDER ADMIN ── */
   function renderAdmin() {
     const withSol = exercises.filter(e => e.solImg).length;
+    const withHints = exercises.filter(e => e.hints && e.hints.length > 0).length;
+    const easy    = exercises.filter(e => e.level === 'Fácil').length;
+    const med     = exercises.filter(e => e.level === 'Médio').length;
     const hard    = exercises.filter(e => e.level === 'Difícil').length;
+    const total   = exercises.length;
+
+    // contagem por tag
+    const tagCount = {};
+    exercises.forEach(e => (e.tags || []).forEach(t => { tagCount[t] = (tagCount[t] || 0) + 1; }));
+    const topTags = Object.entries(tagCount).sort((a,b) => b[1]-a[1]).slice(0, 6);
+
+    // barras de nível
+    const pct = n => total ? Math.round(n / total * 100) : 0;
+
     document.getElementById('statRow').innerHTML = `
-      <div class="stat-card"><div class="stat-val">${exercises.length}</div><div class="stat-label">Total de Exercícios</div></div>
-      <div class="stat-card"><div class="stat-val">${withSol}</div><div class="stat-label">Com Solução</div></div>
-      <div class="stat-card"><div class="stat-val">${hard}</div><div class="stat-label">Nível Difícil</div></div>`;
+      <div class="stat-card">
+        <div class="stat-val">${total}</div>
+        <div class="stat-label">Total de Exercícios</div>
+        <div style="margin-top:1rem;display:flex;flex-direction:column;gap:6px;">
+          <div style="display:flex;align-items:center;gap:8px;font-size:0.75rem;">
+            <span style="color:var(--sage-dark);min-width:44px;">Fácil</span>
+            <div style="flex:1;background:var(--border);border-radius:99px;height:6px;overflow:hidden;">
+              <div style="width:${pct(easy)}%;background:var(--sage-dark);height:100%;border-radius:99px;transition:width 0.5s;"></div>
+            </div>
+            <span style="color:var(--text-muted);min-width:20px;text-align:right;">${easy}</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;font-size:0.75rem;">
+            <span style="color:var(--peach-dark);min-width:44px;">Médio</span>
+            <div style="flex:1;background:var(--border);border-radius:99px;height:6px;overflow:hidden;">
+              <div style="width:${pct(med)}%;background:var(--peach-dark);height:100%;border-radius:99px;transition:width 0.5s;"></div>
+            </div>
+            <span style="color:var(--text-muted);min-width:20px;text-align:right;">${med}</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;font-size:0.75rem;">
+            <span style="color:var(--lavender-dark);min-width:44px;">Difícil</span>
+            <div style="flex:1;background:var(--border);border-radius:99px;height:6px;overflow:hidden;">
+              <div style="width:${pct(hard)}%;background:var(--lavender-dark);height:100%;border-radius:99px;transition:width 0.5s;"></div>
+            </div>
+            <span style="color:var(--text-muted);min-width:20px;text-align:right;">${hard}</span>
+          </div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div style="display:flex;gap:1.2rem;margin-bottom:0.8rem;">
+          <div>
+            <div class="stat-val">${withSol}</div>
+            <div class="stat-label">Com Solução</div>
+          </div>
+          <div>
+            <div class="stat-val">${withHints}</div>
+            <div class="stat-label">Com Dicas</div>
+          </div>
+        </div>
+        <div style="margin-top:0.4rem;">
+          <div style="font-size:0.72rem;color:var(--text-muted);margin-bottom:6px;letter-spacing:0.3px;">COBERTURA DE SOLUÇÕES</div>
+          <div style="background:var(--border);border-radius:99px;height:8px;overflow:hidden;">
+            <div style="width:${pct(withSol)}%;background:linear-gradient(90deg,var(--sage),var(--sage-dark));height:100%;border-radius:99px;transition:width 0.5s;"></div>
+          </div>
+          <div style="font-size:0.72rem;color:var(--text-muted);margin-top:4px;">${pct(withSol)}% dos exercícios têm solução</div>
+        </div>
+        <div style="margin-top:0.9rem;">
+          <div style="font-size:0.72rem;color:var(--text-muted);margin-bottom:6px;letter-spacing:0.3px;">COBERTURA DE DICAS</div>
+          <div style="background:var(--border);border-radius:99px;height:8px;overflow:hidden;">
+            <div style="width:${pct(withHints)}%;background:linear-gradient(90deg,var(--lavender),var(--lavender-dark));height:100%;border-radius:99px;transition:width 0.5s;"></div>
+          </div>
+          <div style="font-size:0.72rem;color:var(--text-muted);margin-top:4px;">${pct(withHints)}% dos exercícios têm dicas</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label" style="margin-bottom:0.6rem;letter-spacing:0.3px;">TAGS MAIS USADAS</div>
+        ${topTags.length
+          ? topTags.map(([tag, count]) => `
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;font-size:0.78rem;">
+              <span style="flex:1;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${tag}</span>
+              <div style="width:60px;background:var(--border);border-radius:99px;height:5px;overflow:hidden;flex-shrink:0;">
+                <div style="width:${Math.round(count/total*100)}%;background:var(--sky);height:100%;border-radius:99px;"></div>
+              </div>
+              <span style="color:var(--text-muted);min-width:14px;text-align:right;">${count}</span>
+            </div>`).join('')
+          : '<span style="font-size:0.8rem;color:var(--text-muted);">Nenhuma tag cadastrada ainda.</span>'
+        }
+      </div>`;
+
 
     const list = document.getElementById('adminList');
     if (!exercises.length) {
@@ -1286,7 +1380,7 @@
           ${ex.exImg ? `<img src="${ex.exImg}" alt="" />` : '📐'}
         </div>
         <div class="admin-item-info">
-          <strong>Exercício ${String(i + 1).padStart(2, '0')}</strong>
+          <strong>Exercício ${String(i + 1).padStart(2, '0')}${ex.title ? ' — ' + ex.title : ''}</strong>
           <span>${ex.level}${ex.tags && ex.tags.length ? ' · ' + ex.tags.join(', ') : ''}${ex.solImg ? ' · com solução' : ' · sem solução'}</span>
         </div>
         <div class="admin-item-actions">
