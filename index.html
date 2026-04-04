@@ -503,13 +503,14 @@
 
     /* ══ FOLHA DE IMPRESSÃO ══ */
     @media print {
-      body * { visibility: hidden; }
-      #printArea, #printArea * { visibility: visible; }
+      body > *:not(#printArea) { display: none !important; }
       #printArea {
+        display: flex !important;
+        flex-direction: column;
         position: fixed; inset: 0;
-        display: flex; flex-direction: column;
         padding: 2cm 2.5cm;
         background: #fff;
+        color: #3D3A4E;
       }
     }
     #printArea { display: none; }
@@ -1148,11 +1149,14 @@
   }
 
   function filterTagByName(tag) {
-    activeTag = tag;
-    // Atualiza visual dos botões da sidebar esquerda
+    // Reutiliza filterTag passando null como btn (sem botão específico clicado)
+    document.querySelectorAll('#stuTagList .stu-filter-btn, .tag-btn').forEach(b => b.classList.remove('active'));
+    // Marca o botão correto na sidebar esquerda
     document.querySelectorAll('#stuTagList .stu-filter-btn').forEach(b => {
-      b.classList.toggle('active', b.textContent.trim().startsWith(tag));
+      const label = b.firstChild?.textContent?.trim() || b.textContent.trim();
+      if ((!tag && label === 'Todas') || (tag && label === tag)) b.classList.add('active');
     });
+    activeTag = tag;
     renderExercises();
   }
 
@@ -1503,8 +1507,9 @@
   }
 
   function filterTag(tag, btn) {
-    document.querySelectorAll('.tag-btn').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
+    // Remove active de todos os botões de tag (sidebar e barra legada)
+    document.querySelectorAll('#stuTagList .stu-filter-btn, .tag-btn').forEach(b => b.classList.remove('active'));
+    if (btn) btn.classList.add('active');
     activeTag = tag;
     renderExercises();
   }
